@@ -1,0 +1,955 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="dsXER" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+  <xs:element name="dsXER" msdata:IsDataSet="true" msdata:UseCurrentLocale="true">
+    <xs:complexType>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
+        <xs:element name="ACCOUNT">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="acct_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="parent_acct_id" type="xs:int" minOccurs="0" />
+              <xs:element name="acct_seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="acct_name" type="xs:string" minOccurs="0" />
+              <xs:element name="acct_short_name" type="xs:string" minOccurs="0" />
+              <xs:element name="acct_descr" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ACTVCODE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="actv_code_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="parent_actv_code_id" type="xs:int" minOccurs="0" />
+              <xs:element name="actv_code_type_id" type="xs:int" />
+              <xs:element name="actv_code_name" type="xs:string" minOccurs="0" />
+              <xs:element name="short_name" type="xs:string" minOccurs="0" />
+              <xs:element name="seq_num" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ACTVTYPE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="actv_code_type_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="actv_code_type" type="xs:string" minOccurs="0" />
+              <xs:element name="actv_code_type_scope" type="xs:string" default="AS_Global" minOccurs="0" />
+              <xs:element name="actv_short_len" type="xs:int" minOccurs="0" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="wbs_id" type="xs:int" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="CALENDAR">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="clndr_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="default_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="clndr_name" type="xs:string" minOccurs="0" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="base_clndr_id" type="xs:int" minOccurs="0" />
+              <xs:element name="last_chng_date" type="xs:date" minOccurs="0" />
+              <xs:element name="clndr_type" type="xs:string" minOccurs="0" />
+              <xs:element name="clndr_data" minOccurs="0">
+                <xs:simpleType>
+                  <xs:restriction base="xs:string">
+                    <xs:length value="2147483647" />
+                  </xs:restriction>
+                </xs:simpleType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="COSTTYPE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="cost_type_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="cost_type" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="CURRTYPE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="curr_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="decimal_digit_cnt" type="xs:int" minOccurs="0" />
+              <xs:element name="curr_symbol" type="xs:string" minOccurs="0" />
+              <xs:element name="decimal_symbol" type="xs:string" minOccurs="0" />
+              <xs:element name="digit_group_symbol" type="xs:string" minOccurs="0" />
+              <xs:element name="pos_curr_fmt_type" type="xs:string" minOccurs="0" />
+              <xs:element name="neg_curr_fmt_type" type="xs:string" minOccurs="0" />
+              <xs:element name="curr_type" type="xs:string" minOccurs="0" />
+              <xs:element name="curr_short_name" type="xs:string" minOccurs="0" />
+              <xs:element name="group_digit_cnt" type="xs:int" minOccurs="0" />
+              <xs:element name="base_exch_rate" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="DOCCATG">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="doc_catg_id" msdata:AutoIncrement="true" msdata:AutoIncrementStep="-1" type="xs:int" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="doc_catg_name" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="DOCSTAT">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="doc_status_id" msdata:AutoIncrement="true" msdata:AutoIncrementStep="-1" type="xs:int" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="doc_status_code" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="DOCUMENT">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="doc_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="doc_seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="deliv_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="doc_name" type="xs:string" minOccurs="0" />
+              <xs:element name="parent_doc_id" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="doc_status_id" type="xs:int" minOccurs="0" />
+              <xs:element name="doc_catg_id" type="xs:int" minOccurs="0" />
+              <xs:element name="doc_date" type="xs:date" minOccurs="0" />
+              <xs:element name="version_name" type="xs:string" minOccurs="0" />
+              <xs:element name="guid" type="xs:string" minOccurs="0" />
+              <xs:element name="tmpl_guid" type="xs:string" minOccurs="0" />
+              <xs:element name="doc_short_name" type="xs:string" minOccurs="0" />
+              <xs:element name="author_name" type="xs:string" minOccurs="0" />
+              <xs:element name="private_loc" type="xs:string" minOccurs="0" />
+              <xs:element name="public_loc" type="xs:string" minOccurs="0" />
+              <xs:element name="doc_mgmt_type" type="xs:string" minOccurs="0" />
+              <xs:element name="cr_external_doc_key" type="xs:string" minOccurs="0" />
+              <xs:element name="doc_content" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="FINDATES">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="fin_dates_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="fin_dates_name" type="xs:string" minOccurs="0" />
+              <xs:element name="start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="end_date" type="xs:date" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="MEMOTYPE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="memo_type_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="eps_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="proj_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="wbs_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="task_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="memo_type" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="OBS">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="obs_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="obs_name" type="xs:string" minOccurs="0" />
+              <xs:element name="parent_obs_id" type="xs:int" minOccurs="0" />
+              <xs:element name="guid" type="xs:string" minOccurs="0" />
+              <xs:element name="obs_descr" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="PCATTYPE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="proj_catg_type_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_catg_short_len" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_catg_type" type="xs:string" minOccurs="0" />
+              <xs:element name="proj_catg_type_wt" type="xs:decimal" minOccurs="0" />
+              <xs:element name="max_proj_catg_wt" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="PCATVAL">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="proj_catg_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="proj_catg_type_id" type="xs:int" minOccurs="0" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_catg_short_name" type="xs:string" minOccurs="0" />
+              <xs:element name="parent_proj_catg_id" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_catg_name" type="xs:string" minOccurs="0" />
+              <xs:element name="proj_catg_wt" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="POBS">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="pobs_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="pobs_parent_id" type="xs:int" minOccurs="0" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="pobs_name" type="xs:string" minOccurs="0" />
+              <xs:element name="pobs_descr" type="xs:string" minOccurs="0" />
+              <xs:element name="pobs_manager" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="PROJCOST">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="cost_item_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="acct_id" type="xs:int" minOccurs="0" />
+              <xs:element name="pobs_id" type="xs:int" minOccurs="0" />
+              <xs:element name="cost_type_id" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="task_id" type="xs:int" minOccurs="0" />
+              <xs:element name="cost_name" type="xs:string" minOccurs="0" />
+              <xs:element name="po_number" type="xs:string" minOccurs="0" />
+              <xs:element name="vendor_name" type="xs:string" minOccurs="0" />
+              <xs:element name="act_cost" type="xs:decimal" default="0" minOccurs="0" />
+              <xs:element name="cost_per_qty" type="xs:decimal" default="0" minOccurs="0" />
+              <xs:element name="remain_cost" type="xs:decimal" default="0" minOccurs="0" />
+              <xs:element name="target_cost" type="xs:decimal" default="0" minOccurs="0" />
+              <xs:element name="cost_load_type" type="xs:string" default="CL_Uniform" minOccurs="0" />
+              <xs:element name="auto_compute_act_flag" type="xs:string" default="N" minOccurs="0" />
+              <xs:element name="target_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="qty_name" type="xs:string" minOccurs="0" />
+              <xs:element name="cost_descr" type="xs:string" minOccurs="0" />
+              <xs:element name="contract_manager_import" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="PROJECT">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="proj_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="fy_start_month_num" type="xs:int" minOccurs="0" />
+              <xs:element name="chng_eff_cmp_pct_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="rsrc_self_add_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="allow_complete_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="rsrc_multi_assign_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="ts_rsrc_mark_act_finish_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="ts_rsrc_vw_inact_actv_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="checkout_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="project_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="step_complete_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="cost_qty_recalc_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="sum_only_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="batch_sum_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="name_sep_char" type="xs:string" minOccurs="0" />
+              <xs:element name="def_complete_pct_type" type="xs:string" minOccurs="0" />
+              <xs:element name="proj_short_name" type="xs:string" minOccurs="0" />
+              <xs:element name="acct_id" type="xs:int" minOccurs="0" />
+              <xs:element name="orig_proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="source_proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="base_type_id" type="xs:int" minOccurs="0" />
+              <xs:element name="clndr_id" type="xs:int" minOccurs="0" />
+              <xs:element name="sum_base_proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="task_code_base" type="xs:int" minOccurs="0" />
+              <xs:element name="task_code_step" type="xs:int" minOccurs="0" />
+              <xs:element name="priority_num" type="xs:int" minOccurs="0" />
+              <xs:element name="wbs_max_sum_level" type="xs:int" minOccurs="0" />
+              <xs:element name="risk_level" type="xs:int" minOccurs="0" />
+              <xs:element name="strgy_priority_num" type="xs:int" minOccurs="0" />
+              <xs:element name="last_checksum" type="xs:int" minOccurs="0" />
+              <xs:element name="critical_drtn_hr_cnt" type="xs:decimal" minOccurs="0" />
+              <xs:element name="def_cost_per_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="last_recalc_date" type="xs:date" minOccurs="0" />
+              <xs:element name="plan_start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="plan_end_date" type="xs:date" minOccurs="0" />
+              <xs:element name="scd_end_date" type="xs:date" minOccurs="0" />
+              <xs:element name="add_date" type="xs:date" minOccurs="0" />
+              <xs:element name="sum_data_date" type="xs:date" minOccurs="0" />
+              <xs:element name="last_tasksum_date" type="xs:date" minOccurs="0" />
+              <xs:element name="fcst_start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="def_duration_type" type="xs:string" minOccurs="0" />
+              <xs:element name="task_code_prefix" type="xs:string" minOccurs="0" />
+              <xs:element name="guid" type="xs:string" minOccurs="0" />
+              <xs:element name="def_qty_type" type="xs:string" minOccurs="0" />
+              <xs:element name="add_by_name" type="xs:string" minOccurs="0" />
+              <xs:element name="web_local_root_path" type="xs:string" minOccurs="0" />
+              <xs:element name="proj_url" type="xs:string" minOccurs="0" />
+              <xs:element name="def_rate_type" type="xs:string" minOccurs="0" />
+              <xs:element name="add_act_remain_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="act_this_per_link_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="def_task_type" type="xs:string" minOccurs="0" />
+              <xs:element name="act_pct_link_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="critical_path_type" type="xs:string" minOccurs="0" />
+              <xs:element name="task_code_prefix_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="def_rollup_dates_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="use_project_baseline_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="rem_target_link_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="reset_planned_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="allow_neg_act_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="sum_assign_level" type="xs:string" minOccurs="0" />
+              <xs:element name="last_fin_dates_id" type="xs:int" minOccurs="0" />
+              <xs:element name="last_baseline_update_date" type="xs:date" minOccurs="0" />
+              <xs:element name="cr_external_key" type="xs:string" minOccurs="0" />
+              <xs:element name="loaded_scope_level" type="xs:int" minOccurs="0" />
+              <xs:element name="export_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="new_fin_dates_id" type="xs:int" minOccurs="0" />
+              <xs:element name="next_data_date" type="xs:date" minOccurs="0" />
+              <xs:element name="close_period_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="trsrcsum_loaded" type="xs:string" minOccurs="0" />
+              <xs:element name="control_updates_flag" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="PROJPCAT">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="proj_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="proj_catg_type_id" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_catg_id" type="xs:int" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="PROJWBS">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="wbs_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="obs_id" type="xs:int" minOccurs="0" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="est_wt" type="xs:decimal" minOccurs="0" />
+              <xs:element name="proj_node_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="sum_data_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="status_code" type="xs:string" minOccurs="0" />
+              <xs:element name="wbs_short_name" type="xs:string" minOccurs="0" />
+              <xs:element name="wbs_name" type="xs:string" minOccurs="0" />
+              <xs:element name="phase_id" type="xs:int" minOccurs="0" />
+              <xs:element name="parent_wbs_id" type="xs:int" minOccurs="0" />
+              <xs:element name="ev_user_pct" type="xs:int" minOccurs="0" />
+              <xs:element name="ev_etc_user_value" type="xs:decimal" minOccurs="0" />
+              <xs:element name="orig_cost" type="xs:decimal" minOccurs="0" />
+              <xs:element name="indep_remain_total_cost" type="xs:decimal" minOccurs="0" />
+              <xs:element name="ann_dscnt_rate_pct" type="xs:decimal" minOccurs="0" />
+              <xs:element name="dscnt_period_type" type="xs:string" minOccurs="0" />
+              <xs:element name="indep_remain_work_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="anticip_start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="anticip_end_date" type="xs:date" minOccurs="0" />
+              <xs:element name="ev_compute_type" type="xs:string" minOccurs="0" />
+              <xs:element name="ev_etc_compute_type" type="xs:string" minOccurs="0" />
+              <xs:element name="guid" type="xs:string" minOccurs="0" />
+              <xs:element name="tmpl_guid" type="xs:string" minOccurs="0" />
+              <xs:element name="plan_open_state" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="RCATTYPE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="rsrc_catg_type_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="rsrc_catg_short_len" type="xs:int" minOccurs="0" />
+              <xs:element name="rsrc_catg_type" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="RISKTYPE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="risc_type_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="risc_type" type="xs:string" minOccurs="0" />
+              <xs:element name="parent_risc_type_id" type="xs:int" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="RCATVAL">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="rsrc_catg_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="rsrc_catg_type_id" type="xs:int" minOccurs="0" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="rsrc_catg_short_name" type="xs:string" minOccurs="0" />
+              <xs:element name="rsrc_catg_name" type="xs:string" minOccurs="0" />
+              <xs:element name="parent_rsrc_catg_id" type="xs:int" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ROLELIMIT">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="rolelimit_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="role_id" type="xs:int" minOccurs="0" />
+              <xs:element name="start_date" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="max_qty_per_hr" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ROLERATE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="role_rate_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="role_id" type="xs:int" minOccurs="0" />
+              <xs:element name="cost_per_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="cost_per_qty2" type="xs:decimal" minOccurs="0" />
+              <xs:element name="cost_per_qty3" type="xs:decimal" minOccurs="0" />
+              <xs:element name="cost_per_qty4" type="xs:decimal" minOccurs="0" />
+              <xs:element name="cost_per_qty5" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="ROLES">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="role_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="parent_role_id" type="xs:int" minOccurs="0" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="role_name" type="xs:string" minOccurs="0" />
+              <xs:element name="role_short_name" type="xs:string" minOccurs="0" />
+              <xs:element name="pobs_id" type="xs:int" minOccurs="0" />
+              <xs:element name="def_cost_qty_link_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="cost_qty_type" type="xs:string" minOccurs="0" />
+              <xs:element name="role_descr" type="xs:string" minOccurs="0" />
+              <xs:element name="last_checksum" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="RSRC">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="rsrc_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="parent_rsrc_id" type="xs:int" minOccurs="0" />
+              <xs:element name="clndr_id" type="xs:int" minOccurs="0" />
+              <xs:element name="role_id" type="xs:int" minOccurs="0" />
+              <xs:element name="shift_id" type="xs:int" minOccurs="0" />
+              <xs:element name="ts_approve_user_id" type="xs:int" minOccurs="0" />
+              <xs:element name="user_id" type="xs:int" minOccurs="0" />
+              <xs:element name="pobs_id" type="xs:int" minOccurs="0" />
+              <xs:element name="guid" type="xs:string" minOccurs="0" />
+              <xs:element name="rsrc_seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="email_addr" type="xs:string" minOccurs="0" />
+              <xs:element name="employee_code" type="xs:string" minOccurs="0" />
+              <xs:element name="office_phone" type="xs:string" minOccurs="0" />
+              <xs:element name="other_phone" type="xs:string" minOccurs="0" />
+              <xs:element name="rsrc_name" type="xs:string" minOccurs="0" />
+              <xs:element name="rsrc_short_name" type="xs:string" minOccurs="0" />
+              <xs:element name="rsrc_title_name" type="xs:string" minOccurs="0" />
+              <xs:element name="def_qty_per_hr" type="xs:decimal" minOccurs="0" />
+              <xs:element name="cost_qty_type" type="xs:string" minOccurs="0" />
+              <xs:element name="ot_factor" type="xs:decimal" minOccurs="0" />
+              <xs:element name="active_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="auto_compute_act_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="def_cost_qty_link_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="ot_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="timesheet_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="xfer_complete_day_cnt" type="xs:int" minOccurs="0" />
+              <xs:element name="xfer_notstart_day_cnt" type="xs:int" minOccurs="0" />
+              <xs:element name="curr_id" type="xs:int" minOccurs="0" />
+              <xs:element name="unit_id" type="xs:int" minOccurs="0" />
+              <xs:element name="rsrc_type" type="xs:string" minOccurs="0" />
+              <xs:element name="rsrc_notes" type="xs:string" minOccurs="0" />
+              <xs:element name="load_tasks_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="level_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="last_checksum" type="xs:int" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="RSRCCURVDATA">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="curv_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="curv_name" type="xs:string" minOccurs="0" />
+              <xs:element name="default_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="pct_usage_0" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_1" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_2" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_3" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_4" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_5" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_6" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_7" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_8" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_9" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_10" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_11" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_12" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_13" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_14" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_15" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_16" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_17" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_18" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_19" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pct_usage_20" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="RSRCRATE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="rsrc_rate_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="rsrc_id" type="xs:int" minOccurs="0" />
+              <xs:element name="max_qty_per_hr" type="xs:decimal" minOccurs="0" />
+              <xs:element name="cost_per_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="shift_period_id" type="xs:int" minOccurs="0" />
+              <xs:element name="cost_per_qty2" type="xs:decimal" minOccurs="0" />
+              <xs:element name="cost_per_qty3" type="xs:decimal" minOccurs="0" />
+              <xs:element name="cost_per_qty4" type="xs:decimal" minOccurs="0" />
+              <xs:element name="cost_per_qty5" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="RSRCRCAT">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="rsrc_id" type="xs:string" minOccurs="0" />
+              <xs:element name="rsrc_catg_type_id" type="xs:int" minOccurs="0" />
+              <xs:element name="rsrc_catg_id" type="xs:int" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="RSRCROLE">
+          <xs:complexType>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="SCHEDOPTIONS">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="schedoptions_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="sched_outer_depend_type" type="xs:string" minOccurs="0" />
+              <xs:element name="sched_open_critical_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="sched_lag_early_start_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="sched_retained_logic" type="xs:string" minOccurs="0" />
+              <xs:element name="sched_setplantoforecast" type="xs:string" minOccurs="0" />
+              <xs:element name="sched_float_type" type="xs:string" minOccurs="0" />
+              <xs:element name="sched_calendar_on_relationship_lag" type="xs:string" minOccurs="0" />
+              <xs:element name="sched_use_expect_end_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="sched_progress_override" type="xs:string" minOccurs="0" />
+              <xs:element name="level_float_thrs_cnt" type="xs:int" minOccurs="0" />
+              <xs:element name="level_outer_assign_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="level_outer_assign_priority" type="xs:int" minOccurs="0" />
+              <xs:element name="level_over_alloc_pct" type="xs:decimal" minOccurs="0" />
+              <xs:element name="level_within_float_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="level_keep_sched_date_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="level_all_rsrc_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="sched_use_project_end_date_for_float" type="xs:string" minOccurs="0" />
+              <xs:element name="enable_multiple_longest_path_calc" type="xs:string" minOccurs="0" />
+              <xs:element name="limit_multiple_longest_path_calc" type="xs:string" minOccurs="0" />
+              <xs:element name="max_multiple_longest_path" type="xs:int" minOccurs="0" />
+              <xs:element name="use_total_float_multiple_longest_paths" type="xs:string" minOccurs="0" />
+              <xs:element name="key_activity_for_multiple_longest_paths" type="xs:string" minOccurs="0" />
+              <xs:element name="LevelPriorityList" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="SHIFT">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="shift_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="shift_name" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="SHIFTPER">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="shift_id" type="xs:int" />
+              <xs:element name="shift_period_id" type="xs:int" minOccurs="0" />
+              <xs:element name="shift_start_hr_num" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TASK">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="task_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="proj_id" type="xs:int" />
+              <xs:element name="wbs_id" type="xs:int" />
+              <xs:element name="clndr_id" type="xs:int" minOccurs="0" />
+              <xs:element name="est_wt" type="xs:decimal" minOccurs="0" />
+              <xs:element name="phys_complete_pct" type="xs:decimal" minOccurs="0" />
+              <xs:element name="rev_fdbk_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="lock_plan_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="auto_compute_act_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="complete_pct_type" type="xs:string" minOccurs="0" />
+              <xs:element name="task_type" type="xs:string" minOccurs="0" />
+              <xs:element name="duration_type" type="xs:string" minOccurs="0" />
+              <xs:element name="review_type" type="xs:string" minOccurs="0" />
+              <xs:element name="status_code" type="xs:string" minOccurs="0" />
+              <xs:element name="task_code" type="xs:string" minOccurs="0" />
+              <xs:element name="task_name" type="xs:string" minOccurs="0" />
+              <xs:element name="rsrc_id" type="xs:int" minOccurs="0" />
+              <xs:element name="total_float_hr_cnt" type="xs:decimal" minOccurs="0" />
+              <xs:element name="free_float_hr_cnt" type="xs:decimal" minOccurs="0" />
+              <xs:element name="remain_drtn_hr_cnt" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_work_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="remain_work_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="target_work_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="target_drtn_hr_cnt" type="xs:decimal" minOccurs="0" />
+              <xs:element name="target_equip_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_equip_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="remain_equip_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="cstr_date" type="xs:date" minOccurs="0" />
+              <xs:element name="act_start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="act_end_date" type="xs:date" minOccurs="0" />
+              <xs:element name="late_start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="late_end_date" type="xs:date" minOccurs="0" />
+              <xs:element name="expect_end_date" type="xs:date" minOccurs="0" />
+              <xs:element name="early_start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="early_end_date" type="xs:date" minOccurs="0" />
+              <xs:element name="restart_date" type="xs:date" minOccurs="0" />
+              <xs:element name="reend_date" type="xs:date" minOccurs="0" />
+              <xs:element name="target_start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="target_end_date" type="xs:date" minOccurs="0" />
+              <xs:element name="review_end_date" type="xs:date" minOccurs="0" />
+              <xs:element name="rem_late_start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="rem_late_end_date" type="xs:date" minOccurs="0" />
+              <xs:element name="cstr_type" type="xs:string" minOccurs="0" />
+              <xs:element name="priority_type" type="xs:string" minOccurs="0" />
+              <xs:element name="suspend_date" type="xs:date" minOccurs="0" />
+              <xs:element name="resume_date" type="xs:date" minOccurs="0" />
+              <xs:element name="float_path" type="xs:int" minOccurs="0" />
+              <xs:element name="float_path_order" type="xs:int" minOccurs="0" />
+              <xs:element name="guid" type="xs:string" minOccurs="0" />
+              <xs:element name="tmpl_guid" type="xs:string" minOccurs="0" />
+              <xs:element name="cstr_date2" type="xs:date" minOccurs="0" />
+              <xs:element name="cstr_type2" type="xs:string" minOccurs="0" />
+              <xs:element name="driving_path_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="act_this_per_work_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_this_per_equip_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="external_early_start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="external_late_end_date" type="xs:date" minOccurs="0" />
+              <xs:element name="create_date" type="xs:date" minOccurs="0" />
+              <xs:element name="update_date" type="xs:date" minOccurs="0" />
+              <xs:element name="create_user" type="xs:string" minOccurs="0" />
+              <xs:element name="update_user" type="xs:string" minOccurs="0" />
+              <xs:element name="control_updates_flag" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TASKACTV">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="task_id" type="xs:int" />
+              <xs:element name="actv_code_type_id" type="xs:int" />
+              <xs:element name="actv_code_id" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TASKDOC">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="taskdoc_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="doc_id" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="wbs_id" type="xs:int" minOccurs="0" />
+              <xs:element name="wp_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="task_id" type="xs:int" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TASKFIN">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="fin_dates_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="task_id" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="act_work_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_work_cost" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_equip_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_equip_cost" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_mat_cost" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_expense_cost" type="xs:decimal" minOccurs="0" />
+              <xs:element name="bcwp" type="xs:decimal" minOccurs="0" />
+              <xs:element name="perfm_work_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="bcws" type="xs:decimal" minOccurs="0" />
+              <xs:element name="sched_work_qty" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TASKMEMO">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="memo_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="task_id" type="xs:int" minOccurs="0" />
+              <xs:element name="memo_type_id" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="task_memo" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TASKNOTE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="task_id" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="task_notes" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TASKPRED">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="task_pred_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="task_id" type="xs:int" minOccurs="0" />
+              <xs:element name="pred_task_id" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="pred_proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="pred_type" type="xs:string" default="PR_FS" minOccurs="0" />
+              <xs:element name="lag_hr_cnt" type="xs:decimal" default="0" minOccurs="0" />
+              <xs:element name="float_path" type="xs:string" minOccurs="0" />
+              <xs:element name="aref" type="xs:date" minOccurs="0" />
+              <xs:element name="arls" type="xs:date" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TASKPROC">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="proc_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="task_id" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="proc_name" type="xs:string" minOccurs="0" />
+              <xs:element name="complete_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="proc_wt" type="xs:decimal" minOccurs="0" />
+              <xs:element name="complete_pct" type="xs:decimal" minOccurs="0" />
+              <xs:element name="proc_descr" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TASKRSRC">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="taskrsrc_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="task_id" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="cost_qty_link_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="role_id" type="xs:int" minOccurs="0" />
+              <xs:element name="acct_id" type="xs:int" minOccurs="0" />
+              <xs:element name="rsrc_id" type="xs:int" minOccurs="0" />
+              <xs:element name="pobs_id" type="xs:int" minOccurs="0" />
+              <xs:element name="skill_level" type="xs:string" minOccurs="0" />
+              <xs:element name="pend_complete_pct" type="xs:decimal" minOccurs="0" />
+              <xs:element name="remain_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pend_remain_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="target_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="remain_qty_per_hr" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pend_act_reg_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="target_lag_drtn_hr_cnt" type="xs:decimal" minOccurs="0" />
+              <xs:element name="target_qty_per_hr" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_ot_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="pend_act_ot_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_reg_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="relag_drtn_hr_cnt" type="xs:decimal" minOccurs="0" />
+              <xs:element name="ot_factor" type="xs:decimal" minOccurs="0" />
+              <xs:element name="cost_per_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="target_cost" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_reg_cost" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_ot_cost" type="xs:decimal" minOccurs="0" />
+              <xs:element name="remain_cost" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="act_end_date" type="xs:date" minOccurs="0" />
+              <xs:element name="restart_date" type="xs:date" minOccurs="0" />
+              <xs:element name="reend_date" type="xs:date" minOccurs="0" />
+              <xs:element name="target_start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="target_end_date" type="xs:date" minOccurs="0" />
+              <xs:element name="rem_late_start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="rem_late_end_date" type="xs:date" minOccurs="0" />
+              <xs:element name="rollup_dates_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="target_crv" type="xs:string" minOccurs="0" />
+              <xs:element name="remain_crv" type="xs:string" minOccurs="0" />
+              <xs:element name="actual_crv" type="xs:string" minOccurs="0" />
+              <xs:element name="ts_pend_act_end_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="guid" type="xs:string" minOccurs="0" />
+              <xs:element name="rate_type" type="xs:string" minOccurs="0" />
+              <xs:element name="act_this_per_cost" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_this_per_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="curv_id" type="xs:int" minOccurs="0" />
+              <xs:element name="rsrc_type" type="xs:string" minOccurs="0" />
+              <xs:element name="create_user" type="xs:string" minOccurs="0" />
+              <xs:element name="create_date" type="xs:date" minOccurs="0" />
+              <xs:element name="has_rsrchours" type="xs:string" minOccurs="0" />
+              <xs:element name="taskrsrc_sum_id" type="xs:int" minOccurs="0" />
+              <xs:element name="cost_per_qty_source_type" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="TRSRCFIN">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="fin_dates_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="taskrsrc_id" type="xs:int" minOccurs="0" />
+              <xs:element name="task_id" type="xs:int" minOccurs="0" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="act_qty" type="xs:decimal" minOccurs="0" />
+              <xs:element name="act_cost" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="UDFTYPE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="udf_type_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="table_name" type="xs:string" minOccurs="0" />
+              <xs:element name="udf_type_name" type="xs:string" minOccurs="0" />
+              <xs:element name="udf_type_label" type="xs:string" minOccurs="0" />
+              <xs:element name="logical_data_type" type="xs:string" minOccurs="0" />
+              <xs:element name="super_flag" type="xs:string" minOccurs="0" />
+              <xs:element name="indicator_expression" type="xs:string" minOccurs="0" />
+              <xs:element name="summary_indicator_expression" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="UDFVALUE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="udf_type_id" type="xs:int" />
+              <xs:element name="fk_id" type="xs:int" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="udf_date" type="xs:dateTime" minOccurs="0" />
+              <xs:element name="udf_number" type="xs:decimal" minOccurs="0" />
+              <xs:element name="udf_text" type="xs:string" minOccurs="0" />
+              <xs:element name="udf_code_id" type="xs:int" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="UMEASURE">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="unit_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="unit_abbrev" type="xs:string" minOccurs="0" />
+              <xs:element name="unit_name" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="WBSBUDG">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="wbs_budg_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="wbs_id" type="xs:int" minOccurs="0" />
+              <xs:element name="start_date" type="xs:date" minOccurs="0" />
+              <xs:element name="spend_cost" type="xs:decimal" minOccurs="0" />
+              <xs:element name="benefit_cost" type="xs:decimal" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="WBSMEMO">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="wbs_memo_id" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="proj_id" type="xs:int" minOccurs="0" />
+              <xs:element name="memo_type_id" type="xs:int" minOccurs="0" />
+              <xs:element name="wbs_id" type="xs:int" minOccurs="0" />
+              <xs:element name="wbs_memo" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:choice>
+    </xs:complexType>
+    <xs:unique name="idx_actv_code_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//ACTVCODE" />
+      <xs:field xpath="actv_code_type_id" />
+      <xs:field xpath="actv_code_id" />
+    </xs:unique>
+    <xs:unique name="idx_actv_code_type_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//ACTVTYPE" />
+      <xs:field xpath="actv_code_type_id" />
+    </xs:unique>
+    <xs:unique name="idx_clndr_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//CALENDAR" />
+      <xs:field xpath="clndr_id" />
+    </xs:unique>
+    <xs:unique name="idx_doccatg_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//DOCCATG" />
+      <xs:field xpath="doc_catg_id" />
+    </xs:unique>
+    <xs:unique name="idx_docstat_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//DOCSTAT" />
+      <xs:field xpath="doc_status_id" />
+    </xs:unique>
+    <xs:unique name="idx_obs_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//OBS" />
+      <xs:field xpath="obs_id" />
+    </xs:unique>
+    <xs:unique name="idx_cost_item_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//PROJCOST" />
+      <xs:field xpath="cost_item_id" />
+    </xs:unique>
+    <xs:unique name="idx_proj_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//PROJECT" />
+      <xs:field xpath="proj_id" />
+    </xs:unique>
+    <xs:unique name="idx_wbs_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//PROJWBS" />
+      <xs:field xpath="wbs_id" />
+    </xs:unique>
+    <xs:unique name="idx_role_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//ROLES" />
+      <xs:field xpath="role_id" />
+    </xs:unique>
+    <xs:unique name="idx_rsrc_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//RSRC" />
+      <xs:field xpath="rsrc_id" />
+    </xs:unique>
+    <xs:unique name="idx_task_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//TASK" />
+      <xs:field xpath="task_id" />
+    </xs:unique>
+    <xs:unique name="idx_taskactv" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//TASKACTV" />
+      <xs:field xpath="actv_code_type_id" />
+      <xs:field xpath="task_id" />
+    </xs:unique>
+    <xs:unique name="idx_taskpred_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//TASKPRED" />
+      <xs:field xpath="task_pred_id" />
+    </xs:unique>
+    <xs:unique name="idx_taskrsrc_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//TASKRSRC" />
+      <xs:field xpath="taskrsrc_id" />
+    </xs:unique>
+    <xs:unique name="idx_udf_type_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//UDFTYPE" />
+      <xs:field xpath="udf_type_id" />
+    </xs:unique>
+    <xs:unique name="idx_udf_value" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//UDFVALUE" />
+      <xs:field xpath="udf_type_id" />
+      <xs:field xpath="fk_id" />
+    </xs:unique>
+    <xs:unique name="idx_unit_id" msdata:PrimaryKey="true">
+      <xs:selector xpath=".//UMEASURE" />
+      <xs:field xpath="unit_id" />
+    </xs:unique>
+  </xs:element>
+  <xs:annotation>
+    <xs:appinfo>
+      <msdata:Relationship name="rel_udf_task" 			msdata:parent="TASK" 		msdata:child="UDFVALUE" msdata:parentkey="task_id" msdata:childkey="fk_id" />
+      <msdata:Relationship name="rel_task_doc" 			msdata:parent="TASK" 		msdata:child="TASKDOC" 	msdata:parentkey="task_id" msdata:childkey="task_id" />
+      <msdata:Relationship name="rel_task_cost" 		msdata:parent="TASK" 		msdata:child="PROJCOST" msdata:parentkey="task_id" msdata:childkey="task_id" /> 
+      <msdata:Relationship name="rel_task_actv" 		msdata:parent="TASK" 		msdata:child="TASKACTV" msdata:parentkey="task_id" msdata:childkey="task_id" />  
+      <msdata:Relationship name="rel_task_rsrc" 		msdata:parent="TASK" 		msdata:child="TASKRSRC" msdata:parentkey="task_id" msdata:childkey="task_id" />
+      <msdata:Relationship name="rel_actv_code_type" 	msdata:parent="ACTVTYPE" 	msdata:child="ACTVCODE" msdata:parentkey="actv_code_type_id" msdata:childkey="actv_code_type_id" />
+      <msdata:Relationship name="rel_actv_type_task" 	msdata:parent="ACTVTYPE" 	msdata:child="TASKACTV" msdata:parentkey="actv_code_type_id" msdata:childkey="actv_code_type_id" />
+      <msdata:Relationship name="rel_actv_code_task" 	msdata:parent="ACTVCODE" 	msdata:child="TASKACTV" msdata:parentkey="actv_code_id" msdata:childkey="actv_code_id" />
+      <msdata:Relationship name="rel_rsrc_unit" 		msdata:parent="UMEASURE" 	msdata:child="RSRC" 	msdata:parentkey="unit_id" msdata:childkey="unit_id" />	  
+      <msdata:Relationship name="rel_rsrc_task" 		msdata:parent="RSRC" 		msdata:child="TASKRSRC" msdata:parentkey="rsrc_id" msdata:childkey="rsrc_id" />
+      <msdata:Relationship name="rel_role_task" 		msdata:parent="ROLES" 		msdata:child="TASKRSRC" msdata:parentkey="role_id" msdata:childkey="role_id" />
+      <msdata:Relationship name="rel_proj_task" 		msdata:parent="PROJECT" 	msdata:child="TASK" 	msdata:parentkey="proj_id" msdata:childkey="proj_id" />
+      <msdata:Relationship name="rel_proj_wbs" 			msdata:parent="PROJECT" 	msdata:child="PROJWBS" 	msdata:parentkey="proj_id" msdata:childkey="proj_id" />  
+      <msdata:Relationship name="rel_cost_type" 		msdata:parent="COSTTYPE" 	msdata:child="PROJCOST" msdata:parentkey="cost_type_id" msdata:childkey="cost_type_id" />
+      <msdata:Relationship name="rel_doc_catg" 			msdata:parent="DOCCATG" 	msdata:child="DOCUMENT" msdata:parentkey="doc_catg_id" msdata:childkey="doc_catg_id" />
+      <msdata:Relationship name="rel_doc_stat" 			msdata:parent="DOCSTAT" 	msdata:child="DOCUMENT" msdata:parentkey="doc_status_id" msdata:childkey="doc_status_id" />
+      <msdata:Relationship name="rel_doc_task" 			msdata:parent="DOCUMENT" 	msdata:child="TASKDOC" 	msdata:parentkey="doc_id" msdata:childkey="doc_id" />  
+      <msdata:Relationship name="rel_udf_type" 			msdata:parent="UDFTYPE" 	msdata:child="UDFVALUE" msdata:parentkey="udf_type_id" msdata:childkey="udf_type_id" />
+      <msdata:Relationship name="rel_wbs_task" 			msdata:parent="PROJWBS" 	msdata:child="TASK" 	msdata:parentkey="wbs_id" msdata:childkey="wbs_id" />
+      <msdata:Relationship name="rel_wbs"				msdata:parent="PROJWBS" 	msdata:child="PROJWBS" 	msdata:parentkey="wbs_id" msdata:childkey="parent_wbs_id" />
+    </xs:appinfo>
+  </xs:annotation>
+</xs:schema>

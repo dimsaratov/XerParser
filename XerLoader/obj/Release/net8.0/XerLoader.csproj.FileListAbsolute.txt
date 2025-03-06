@@ -1,0 +1,12 @@
+F:\Project\Рабочая\Net\XerParserTest\XerLoader\bin\Release\net8.0\SchemaXer.xsd
+F:\Project\Рабочая\Net\XerParserTest\XerLoader\bin\Release\net8.0\XerLoader.deps.json
+F:\Project\Рабочая\Net\XerParserTest\XerLoader\bin\Release\net8.0\XerLoader.dll
+F:\Project\Рабочая\Net\XerParserTest\XerLoader\bin\Release\net8.0\XerLoader.pdb
+F:\Project\Рабочая\Net\XerParserTest\XerLoader\obj\Release\net8.0\XerLoader.GeneratedMSBuildEditorConfig.editorconfig
+F:\Project\Рабочая\Net\XerParserTest\XerLoader\obj\Release\net8.0\XerLoader.AssemblyInfoInputs.cache
+F:\Project\Рабочая\Net\XerParserTest\XerLoader\obj\Release\net8.0\XerLoader.AssemblyInfo.cs
+F:\Project\Рабочая\Net\XerParserTest\XerLoader\obj\Release\net8.0\XerLoader.csproj.CoreCompileInputs.cache
+F:\Project\Рабочая\Net\XerParserTest\XerLoader\obj\Release\net8.0\XerLoader.dll
+F:\Project\Рабочая\Net\XerParserTest\XerLoader\obj\Release\net8.0\refint\XerLoader.dll
+F:\Project\Рабочая\Net\XerParserTest\XerLoader\obj\Release\net8.0\XerLoader.pdb
+F:\Project\Рабочая\Net\XerParserTest\XerLoader\obj\Release\net8.0\ref\XerLoader.dll
