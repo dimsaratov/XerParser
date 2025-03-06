@@ -10,3 +10,17 @@ F:\Project\Рабочая\Net\XerLoader\XerLoader\obj\Debug\net8.0-windows\XerLo
 F:\Project\Рабочая\Net\XerLoader\XerLoader\obj\Debug\net8.0-windows\refint\XerLoader.dll
 F:\Project\Рабочая\Net\XerLoader\XerLoader\obj\Debug\net8.0-windows\XerLoader.pdb
 F:\Project\Рабочая\Net\XerLoader\XerLoader\obj\Debug\net8.0-windows\ref\XerLoader.dll
+F:\Project\Рабочая\Net\Xer\XerLoader\bin\Debug\net8.0-windows\SchemaXer.xsd
+F:\Project\Рабочая\Net\Xer\XerLoader\bin\Debug\net8.0-windows\XerLoader.deps.json
+F:\Project\Рабочая\Net\Xer\XerLoader\bin\Debug\net8.0-windows\XerLoader.dll
+F:\Project\Рабочая\Net\Xer\XerLoader\bin\Debug\net8.0-windows\XerLoader.pdb
+F:\Project\Рабочая\Net\Xer\XerLoader\obj\Debug\net8.0-windows\XerLoader.GeneratedMSBuildEditorConfig.editorconfig
+F:\Project\Рабочая\Net\Xer\XerLoader\obj\Debug\net8.0-windows\XerLoader.AssemblyInfoInputs.cache
+F:\Project\Рабочая\Net\Xer\XerLoader\obj\Debug\net8.0-windows\XerLoader.AssemblyInfo.cs
+F:\Project\Рабочая\Net\Xer\XerLoader\obj\Debug\net8.0-windows\XerLoader.csproj.CoreCompileInputs.cache
+F:\Project\Рабочая\Net\Xer\XerLoader\obj\Debug\net8.0-windows\XerLoader.sourcelink.json
+F:\Project\Рабочая\Net\Xer\XerLoader\obj\Debug\net8.0-windows\XerLoader.dll
+F:\Project\Рабочая\Net\Xer\XerLoader\obj\Debug\net8.0-windows\refint\XerLoader.dll
+F:\Project\Рабочая\Net\Xer\XerLoader\obj\Debug\net8.0-windows\XerLoader.pdb
+F:\Project\Рабочая\Net\Xer\XerLoader\obj\Debug\net8.0-windows\ref\XerLoader.dll
+F:\Project\Рабочая\Net\XerLoader\XerLoader\obj\Debug\net8.0-windows\XerLoader.sourcelink.json

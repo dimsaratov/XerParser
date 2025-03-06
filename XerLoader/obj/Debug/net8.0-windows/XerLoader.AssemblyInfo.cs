@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("XerLoader")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+31af5951f6c81ff76da9807006b9600ae7999faf")]
 [assembly: System.Reflection.AssemblyProductAttribute("XerLoader")]
 [assembly: System.Reflection.AssemblyTitleAttribute("XerLoader")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
