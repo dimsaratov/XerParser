@@ -20,10 +20,22 @@ namespace xer
 
         public void Parse(string filePath)
         {
+            parser.ResetIgnoredTable();
             sw = Stopwatch.StartNew();
             Console.WriteLine();
             Console.WriteLine($"Начало: {DateTime.Now}");
             parser.LoadXer(filePath); 
+        }
+
+        public void ParseCustom(string filePath)
+        {
+            parser.LoadedTable.Add("PROJECT");
+            parser.LoadedTable.Add("PROJWBS");
+            parser.LoadedTable.Add("TASK");
+            sw = Stopwatch.StartNew();
+            Console.WriteLine();
+            Console.WriteLine($"Начало: {DateTime.Now}");
+            parser.LoadXer(filePath);
         }
 
         private void Parser_InitializationСompleted(object sender, InitializeEventArgs e)

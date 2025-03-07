@@ -16,7 +16,9 @@ ParserWrapper wrapper = new(pathSchemaXer);
 
 again:
 Console.Clear();
-Console.WriteLine("Построчное чтение");
+Console.WriteLine(new string('*', 75));
+Console.WriteLine("1 Полная загрузка");
+Console.WriteLine("2 Загрузка Project,Task,Projwbs");
 Console.WriteLine("Esc. Отмена");
 
 ConsoleKey ki = Console.ReadKey(true).Key;
@@ -26,7 +28,7 @@ switch (ki)
     case ConsoleKey.NumPad1:
     case ConsoleKey.D1:
         Console.Clear();
-        Console.WriteLine("Построчное чтение");
+        Console.WriteLine("Полная загрузка");
         wrapper.Parse(path);
         Console.WriteLine("Нажми Enter чтобы продолжить");
         do
@@ -36,7 +38,21 @@ switch (ki)
                 // Do something
             }
         } while (Console.ReadKey(true).Key != ConsoleKey.Enter);
-        goto again;    
+        goto again;
+    case ConsoleKey.NumPad2:
+    case ConsoleKey.D2:
+        Console.Clear();
+        Console.WriteLine("Выборочная загрузка");
+        wrapper.ParseCustom(path);
+        Console.WriteLine("Нажми Enter чтобы продолжить");
+        do
+        {
+            while (!Console.KeyAvailable)
+            {
+                // Do something
+            }
+        } while (Console.ReadKey(true).Key != ConsoleKey.Enter);
+        goto again;
     case ConsoleKey.Escape:
         break;     
     default:

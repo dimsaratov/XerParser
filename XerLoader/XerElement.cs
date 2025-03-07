@@ -1,18 +1,20 @@
 ﻿using System.Data;
 using System.Diagnostics;
 using System.Globalization;
+using static XerLoader.XerElement;
 
 namespace XerLoader
 {
     public class XerElement(string tableName)
     {
         #region Variable
-        readonly HashSet<Tuple<int, ValueParse>> valueParsers = [];
-        public delegate bool ValueParse(string value, out object parsedValue);
+        public delegate object ValueParse(string value);
 
-        private IEnumerable<string> fieldNames;
+     
         DataTable table;
+        private IEnumerable<string> fields;
         private IEnumerable<List<string>> records;
+        private List<DataSetter> parsers;
         private readonly string table_name = tableName;
         private DataSet dsXer;
         private bool isInitilized;
@@ -48,11 +50,11 @@ namespace XerLoader
 
         internal IEnumerable<string> FieldNames
         {
-            get => fieldNames;
+            get => fields;
             set
             {
-                fieldNames = value;
-                SetValueParser();
+                fields= value;
+                SetValueParser(fields);
             }
         }
         internal IEnumerable<List<string>> Records
@@ -84,46 +86,31 @@ namespace XerLoader
             errorLog.Add(eString);
         }
 
-  
-
         async Task ConvertValue()
         {
             task = Task.Run(() =>
                 {
-                    int row = 0;
+                    int idx = 0;
                     foreach (var record in records)
                     {
-                        string field = string.Empty;
                         string value = string.Empty;
-                        int i = 0;
+                        string field = string.Empty;
                         try
                         {
-                            DataRow dr = table.NewRow();
-                            string[] names = fieldNames.ToArray();
-                            foreach (Tuple<int, ValueParse> v in valueParsers)
+                            DataRow row = table.NewRow();
+                            for (int i =0; i<parsers.Count; i++)
                             {
-                                field = names[i];
                                 value = record[i];
-                                if (value.Length == 0)
-                                    dr[v.Item1] = DBNull.Value;
-                                else
-                                {
-                                    if (v.Item2(value, out object parsedValue))
-                                        dr[v.Item1] = parsedValue;
-                                    else
-                                        WriteErrorLog(errorLog, value, row,
-                                                      $"Ожидалось значение конвертируемое в {table.Columns[v.Item1].DataType}",
-                                                      TableName, field);
-                                }
-                                i++;
+                                field = parsers[i].Name;
+                                row[field] = parsers[i].ValueParse(value);
                             }
-                            table.Rows.Add(dr);
-                            row++;
+                            table.Rows.Add(row);                         
                         }
                         catch (Exception ex)
                         {
-                            WriteErrorLog(errorLog, value, row, ex.Message, TableName, field);
+                            WriteErrorLog(errorLog, value, idx, ex.Message, TableName, field);
                         }
+                        idx++;
                     }
                     records = null;
                     OnInitialised(new InitializeEventArgs(stopwatch.Elapsed));
@@ -134,78 +121,13 @@ namespace XerLoader
             GC.Collect();
         }
 
-        void SetValueParser()
+        void SetValueParser(IEnumerable<string> fields)
         {
-            foreach (string field in fieldNames)
+            parsers = [];
+            foreach (string f in fields)
             {
-                int idx = table.Columns.IndexOf(field);
-                if (idx < 0)
-                    continue;
-                else
-                {
-                    ValueParse valueParse = new(StringParse);
-                    DataColumn column = table.Columns[idx];
-
-                    valueParse = column.DataType.Name switch
-                    {
-                        "DateTime" => new ValueParse(DateTimeParse),
-                        "Int32" => new ValueParse(IntParse),
-                        "Decimal" => new ValueParse(DecimalParse),
-                        "Boolean" => new ValueParse(BoolParse),
-                        _ => new ValueParse(StringParse),
-                    };
-                    valueParsers.Add(new Tuple<int, ValueParse>(idx, valueParse));
-                }
+                if (table.Columns[f] is DataColumn column) parsers.Add(new(column));                    
             }
-        }
-
-
-        static bool DecimalParse(string value, out object parsedValue)
-        {
-            parsedValue = DBNull.Value;
-            if (decimal.TryParse(value, NumberStyles.Float, XerParser.NumberFormat, out decimal n))
-            {
-                parsedValue = n;
-                return true;
-            }
-            return false;
-        }
-
-        static bool DateTimeParse(string value, out object parsedValue)
-        {
-            parsedValue = DBNull.Value;
-            if (DateTime.TryParse(value, out DateTime d))
-            {
-                parsedValue = d;
-                return true;
-            }
-            return false;
-        }
-        static bool StringParse(string value, out object parsedValue)
-        {
-            parsedValue = value;
-            return true;
-        }
-        static bool IntParse(string value, out object parsedValue)
-        {
-            parsedValue = DBNull.Value;
-            if (int.TryParse(value, out int i))
-            {
-                parsedValue = i;
-                return true;
-            }
-            return false;
-        }
-
-        static bool BoolParse(string value, out object parsedValue)
-        {
-            parsedValue = DBNull.Value;
-            if (bool.TryParse(value, out bool b))
-            {
-                parsedValue = b;
-                return true;
-            }
-            return false;
         }
         #endregion
 
