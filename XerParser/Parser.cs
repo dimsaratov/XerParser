@@ -12,6 +12,7 @@ namespace XerParser
     /// <summary>
     /// Reading a Xer file to a DataTable and writing a DataTable to an Xer file
     /// </summary>
+    //[SupportedOSPlatform("windows")]
     public partial class Parser : IDisposable
     {
         #region Variable
@@ -28,7 +29,11 @@ namespace XerParser
         private static readonly string dblQuote = new('"', 2);
         private const string nonPrintablePattern = @"[\x00-\x09\x0B-\x1F]";
         private const string replacementChar = "#";
+#if NET8_0_OR_GREATER
         private static readonly Regex nonPrintable = new(nonPrintablePattern, RegexOptions.Compiled);
+#else
+        private static readonly Regex nonPrintable = new(nonPrintablePattern, RegexOptions.Compiled);
+#endif
         private DataSet dataSet;
         private readonly DataSet schemaXer = new("dsXER");
         internal static readonly NumberFormatInfo NumberFormat = new()

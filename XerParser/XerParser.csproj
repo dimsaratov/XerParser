@@ -1,26 +1,67 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+ 
   <PropertyGroup>
-    <TargetFrameworks>net472-windows;net6.0-windows;net8.0-windows</TargetFrameworks>
+    <TargetFrameworks>net8.0-windows;net6.0-windows;net472-windows;</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
     <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>True</EnableNETAnalyzers>
     <AnalysisLevel>preview-recommended</AnalysisLevel>
+    <SupportedPlatform>windows</SupportedPlatform>
+    <OverwriteReadOnlyOutputFiles>true</OverwriteReadOnlyOutputFiles>
+    <TransformOutOfDateOnly>false</TransformOutOfDateOnly>
+    <LangVersion>latest</LangVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <LangVersion>latest</LangVersion>
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
-  </PropertyGroup>    
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <IsPublishable>False</IsPublishable>
+  </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <IsPublishable>True</IsPublishable>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <Authors>Kozupitsa DmA</Authors>
+    <AssemblyName>XerParser</AssemblyName>
+    <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Copyright>Copyright © Kozupitsa DmA $([System.DateTime]::UtcNow.ToString(yyyy))</Copyright>
+    <Title>XerParser</Title>
+    <Description>Reading a Xer file to a DataSet and writing a DataSet to an Xer file</Description>
+    <Product>XerParser</Product>
+    <VersionSuffix>1.0.$([System.DateTime]::UtcNow.ToString(MMdd)).$([System.DateTime]::Now.ToString(HHmm))</VersionSuffix>
+    <AssemblyVersion Condition=" '$(VersionSuffix)' == '' ">1.0.0.0</AssemblyVersion>
+    <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
+    <Version Condition=" '$(VersionSuffix)' == '' ">1.0.0.0</Version>
+    <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PackageOutputPath>F:\Nuget\packages</PackageOutputPath>
+    <PackageProjectUrl>https://github.com/dimsaratov/XerParser</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/dimsaratov/XerParser</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>  
+    <PackageTags>XER,PrimaveraXer</PackageTags> 
+  </PropertyGroup>
+ 
   <ItemGroup>
     <None Update="SchemaXer.xsd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
       <Generator></Generator>
+      <Pack>true</Pack>
+    </None>
+    <None Include="..\README.md" Pack="true" PackagePath="\">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  
+  <!--<ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>-->
 
 </Project>
