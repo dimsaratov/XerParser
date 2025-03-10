@@ -44,6 +44,7 @@
     <PackageProjectUrl>https://github.com/dimsaratov/XerParser</PackageProjectUrl>
     <RepositoryUrl>https://github.com/dimsaratov/XerParser</RepositoryUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>  
     <PackageTags>XER,PrimaveraXer</PackageTags> 
   </PropertyGroup>
@@ -58,10 +59,8 @@
     <None Include="..\README.md" Pack="true" PackagePath="\">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
+    <None Include="..\LICENSE.txt" Pack="true" PackagePath="\">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
-  
-  <!--<ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
-    <Reference Include="System.Net.Http" />
-  </ItemGroup>-->
-
 </Project>
