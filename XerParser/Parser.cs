@@ -13,7 +13,6 @@ namespace XerParser
     /// <summary>
     /// Reading a Xer file to a DataTable and writing a DataTable to an Xer file
     /// </summary>
-    //[SupportedOSPlatform("windows")]
     public partial class Parser : IDisposable
     {
         #region Variable
