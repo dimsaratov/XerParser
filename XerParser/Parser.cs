@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.ComponentModel;
+using System.Data;
 using System.Diagnostics;
 using System.Globalization;
 using System.Security;
@@ -17,7 +18,6 @@ namespace XerParser
     {
         #region Variable
         private enum State { outQuote, inQuote, mayBeOutQuote }
-
         private const char ASC_TAB_CHAR = '\t';
         private const char end1 = '\r';
         private const char end2 = '\n';
@@ -29,17 +29,22 @@ namespace XerParser
         private static readonly string dblQuote = new('"', 2);
         private const string nonPrintablePattern = @"[\x00-\x09\x0B-\x1F]";
         private const string replacementChar = "#";
-#if NET8_0_OR_GREATER
         private static readonly Regex nonPrintable = new(nonPrintablePattern, RegexOptions.Compiled);
-#else
-        private static readonly Regex nonPrintable = new(nonPrintablePattern, RegexOptions.Compiled);
-#endif
         private DataSet dataSet;
-        private readonly DataSet schemaXer = new("dsXER");
-        internal static readonly NumberFormatInfo NumberFormat = new()
+        private NumberDecimalSeparator numberDecimalSeparator;
+        private StreamReader reader;
+        /// <summary>
+        /// DataSet Schema Xer
+        /// </summary>
+        protected internal DataSet schemaXer;
+        private bool disposedValue;
+        private string pathSchemaXer;
+
+        internal static NumberFormatInfo NumberFormat = new()
         {
             NumberDecimalSeparator = @".",
         };
+        private Counter counter;
         #endregion
 
         /// <summary>
@@ -51,7 +56,11 @@ namespace XerParser
         /// </param>
         public Parser(string pathSchemaXer)
         {
-            schemaXer.ReadXmlSchema(pathSchemaXer);
+#if NET6_0_OR_GREATER
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+#endif
+            this.PathSchemaXER = pathSchemaXer;
+
         }
 
         /// <summary>
@@ -60,9 +69,17 @@ namespace XerParser
         /// <param name="schemaXer">
         /// Schema of the Xer format dataset
         /// </param>
-        public Parser(DataSet schemaXer)
+        public Parser(DataSet schemaXer) : this("")
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(schemaXer);
             this.schemaXer = schemaXer;
+#else
+            if (schemaXer == null)
+            {
+                throw new ArgumentNullException(nameof(schemaXer));
+            }
+#endif
         }
 
 
@@ -72,7 +89,33 @@ namespace XerParser
         /// </summary>
         public string[] DefaultIgnoredTable { get; set; } = ["OBS", "POBS", "RISKTYPE"];
 
-        private DataSet SchemaXer => schemaXer.Clone();
+        /// <summary>
+        /// Path to file schema of the Xer format dataset
+        /// </summary>
+        [Description("Путь к файлу схемы XER Примавера")]
+        public string PathSchemaXER
+        {
+            get => pathSchemaXer;
+            set
+            {
+                if (System.IO.File.Exists(value) && pathSchemaXer != value)
+                {
+                    pathSchemaXer = value;
+                    schemaXer = new("dsXER");
+                    schemaXer.ReadXmlSchema(pathSchemaXer);
+                }
+                else
+                {
+                    schemaXer = null;
+                    pathSchemaXer = string.Empty;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Schema of the Xer format dataset
+        /// </summary>
+        protected internal DataSet SchemaXer => schemaXer?.Clone();
 
         /// <summary>
         /// Hashset is the name of the tables that are ignored when reading the Xer file.
@@ -116,19 +159,61 @@ namespace XerParser
         /// <summary>
         /// Delete tables with no records, false by default;
         /// </summary>
-        public static bool RemoveEmptyTables { get; set; } = false;
+        public bool RemoveEmptyTables { get; set; } = false;
 
         /// <summary>
         /// Error sheet when converting fields from XER file
         /// </summary>
-        public static List<string> ErrorLog { get; } = [];
+        public List<string> ErrorLog { get; } = [];
 
         /// <summary>
-        /// 
+        /// The currency for building the file
         /// </summary>
         public static string Currence { get; set; } = "RUB";
 
         private static string FullName => WindowsIdentity.GetCurrent().Name;
+
+        /// <summary>
+        /// Separator for decimal values
+        /// </summary>
+        public NumberDecimalSeparator NumberDecimalSeparator
+        {
+            get => numberDecimalSeparator;
+            set
+            {
+                if (value != numberDecimalSeparator)
+                {
+                    numberDecimalSeparator = value;
+                    string separator = numberDecimalSeparator == NumberDecimalSeparator.Point ? "." : ",";
+                    NumberFormat = new NumberFormatInfo()
+                    {
+                        NumberDecimalSeparator = separator
+                    };
+                }
+            }
+        }
+
+        /// <summary>
+        /// A counter for tracking the process of loading a Xer file
+        /// </summary>
+        public Counter ProgressCounter
+        {
+            get
+            {
+                if (counter == null)
+                {
+                    counter = new Counter();
+                    counter.PropertyChanged += Counter_PropertyChanged;
+                }
+                return counter;
+            }
+            set => counter = value;
+        }
+
+        private void Counter_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            OnCounterChanged(e);
+        }
 
         #endregion
 
@@ -141,10 +226,10 @@ namespace XerParser
         /// <returns>The path to the Xer file</returns>
         public async Task LoadXer(string fileName)
         {
-            SetIgnoredTables();
             Stopwatch sw = Stopwatch.StartNew();
             DataSetXer = SchemaXer;
-            await Task.Run(() => XerElements = InternalParse(fileName, dataSet).ToArray());
+            SetIgnoredTables();
+            await Task.Run(() => XerElements = [.. InternalParse(fileName, dataSet)]);
 
             IEnumerable<Task> tasks = from x in XerElements
                                       where !x.IsInicialized
@@ -155,28 +240,25 @@ namespace XerParser
             GC.Collect();
         }
 
-
         private IEnumerable<XerElement> InternalParse(string fileName, DataSet dsXer)
         {
+            ProgressCounter.Reset();
             XerElement e = null;
             List<List<string>> records = null;
 
-            int remUpload = Math.Max(dsXer.Tables.Count - IgnoredTable.Count,
-                                                        LoadedTable.Count);
+            int remUpload = Math.Max(dsXer.Tables.Count - IgnoredTable.Count, LoadedTable.Count);
             bool ignore = false;
+
             foreach (List<string> line in Parse(ReadLines(fileName)))
             {
                 string flag = line[0];
                 switch (flag)
                 {
-                    case end:
-                        e.Records = records;
-                        yield return e;
-                        break;
                     case tbl:
                         if (e != null)
                         {
                             e.Records = records;
+                            ProgressCounter.Message = $"парсинг {e.TableName}";
                             yield return e;
                             if (remUpload == 0)
                             {
@@ -192,11 +274,11 @@ namespace XerParser
                         {
                             ignore = false;
                         }
-
                         e = new(line[1])
                         {
                             DataSetXer = dsXer
                         };
+                        ProgressCounter.Message = $"чтение {line[1]}";
                         remUpload--;
                         e.Initialized += E_Initialised;
                         break;
@@ -205,24 +287,36 @@ namespace XerParser
                         {
                             continue;
                         }
-
                         e.FieldNames = line.Skip(1);
                         records = [];
                         break;
                     case rec:
+                        if (reader.BaseStream.CanRead) { ProgressCounter.Value = reader.BaseStream.Position; }
                         if (ignore)
                         {
                             continue;
                         }
-                        records.Add(line.Skip(1).ToList());
+                        records.Add([.. line.Skip(1)]);
+                        break;
+                    case end:
+                        if (e is not null)
+                        {
+                            e.Records = records;
+                            ProgressCounter.Message = $"парсинг {e.TableName}";
+                            yield return e;
+                        }
                         break;
                 }
             }
         }
 
-        private static IEnumerable<string> ReadLines(string fileName)
+        private IEnumerable<string> ReadLines(string fileName)
         {
+            FileInfo fileInfo = new(fileName);
+            ProgressCounter.Maximum = fileInfo.Length;
+            ProgressCounter.Message = fileInfo.Name;
             using StreamReader sr = new(fileName, Encoding.GetEncoding(1251));
+            reader = sr;
             while (sr.Peek() >= 0)
             {
                 yield return sr.ReadLine();
@@ -237,7 +331,6 @@ namespace XerParser
                 yield return ParseLine(e);
             }
         }
-
 
         private static List<string> ParseLine(IEnumerator<string> e)
         {
@@ -315,8 +408,23 @@ namespace XerParser
         #endregion
 
         #region Build
+
         /// <summary>
-        /// 
+        ///  Xer file building method
+        /// </summary>
+        /// <param name="path">
+        /// The path where the Xer file will be created
+        /// </param>
+        /// <returns>
+        /// Returns the result of successful recording of the Xer file
+        /// </returns>
+        public async Task<bool> BuildXerFile(string path)
+        {
+            return await Parser.BuildXerFile(DataSetXer, path, ErrorLog, RemoveEmptyTables, ProgressCounter);
+        }
+
+        /// <summary>
+        /// Xer file building method
         /// </summary>
         /// <param name="dataSetXer">
         /// A set of data to write to a Xer file
@@ -324,28 +432,34 @@ namespace XerParser
         /// <param name="path">
         /// The path where the Xer file will be created
         /// </param>
+        /// <param name="counter">
+        /// A counter for tracking the process of building a Xer file
+        /// </param>
+        /// <param name="errorLog">
+        /// A list of error lines for writing the XER file
+        /// </param>
+        /// <param name="removeEmptyTables">
+        /// Don't save empty tables
+        /// </param>
         /// <returns>
         /// Returns the result of successful recording of the Xer file
         /// </returns>
-        public static bool BuildXerFile(DataSet dataSetXer, string path)
+        public static async Task<bool> BuildXerFile(DataSet dataSetXer, string path, List<string> errorLog, bool removeEmptyTables, Counter counter = null)
         {
-            string userName = Environment.UserName;
-
-            if (string.IsNullOrWhiteSpace(path))
+            return !string.IsNullOrWhiteSpace(path) && dataSetXer is not null
+            && await Task.Run(() =>
             {
-                return false;
-            }
+                string userName = Environment.UserName;
+                counter ??= new Counter();
+                counter.Reset();
+                errorLog ??= [];
 
-            //builds an XER file from current datatable contents...
-            string sLine;
-
-            //On Error GoTo buildXerFile_Error
-            using StreamWriter eXerFile = new(path, false, Encoding);
-            try
-            {
-                //xer header (TP/P3e)...
-                string header = string.Join(ASC_TAB_CHAR.ToString(),
-                                            [ "ERMHDR",
+                using StreamWriter eXerFile = new(path, false, Encoding);
+                try
+                {
+                    //xer header (TP/P3e)...
+                    string header = string.Join(ASC_TAB_CHAR.ToString(),
+                                                [ "ERMHDR",
                                               "19.12" ,
                                               DateTime.Now.ToString("yyyy-MM-dd"),
                                               "Project" ,
@@ -354,129 +468,119 @@ namespace XerParser
                                               "XerBuilder",
                                               "Project Management",
                                               Currence]);
-                eXerFile.WriteLine(header);
-                dataSetXer.AcceptChanges();
+                    eXerFile.WriteLine(header);
 
-
-                foreach (DataTable dTable in dataSetXer.Tables)
-                {
-                    //make sure sheet has data...
-
-                    if (dTable != null)
+                    foreach (DataTable dTable in dataSetXer.Tables)
                     {
-                        if (RemoveEmptyTables && dTable.Rows.Count == 0)
+                        //make sure sheet has data...
+                        if (removeEmptyTables && dTable.Rows.Count == 0)
                         {
                             continue;
                         }
                         dTable.AcceptChanges();
+                        //builds an XER file from current datatable contents...
+                        counter.Reset();
+                        counter.Message = dTable.TableName;
+                        counter.Maximum = dTable.Rows.Count;
+
                         //write table header...
-                        sLine = "%T" + ASC_TAB_CHAR + dTable.TableName;
-                        eXerFile.WriteLine(sLine);
-                        sLine = "%F";
+                        eXerFile.WriteLine($"{tbl}\t{dTable.TableName}");
 
                         //write field header...
-                        List<string> ArrColumn = [];
-
-                        foreach (DataColumn dColumn in dTable.Columns)
-                        {
-                            sLine += ASC_TAB_CHAR + dColumn.ColumnName;
-                            ArrColumn.Add(dColumn.ColumnName);
-                        }
-
-                        eXerFile.WriteLine(sLine);
+                        IEnumerable<string> fields = dTable.Columns.Cast<DataColumn>().Select(c => c.ColumnName);
+                        string f = $"{fld}\t{string.Join(ASC_TAB_CHAR.ToString(), fields)}";
+                        eXerFile.WriteLine(f);
 
                         //write data rows...
-                        foreach (DataRow dRow in dTable.Rows)
+                        IEnumerable<DataRow> records = dTable.Rows.OfType<DataRow>();
+                        List<string> bedRecord = [];
+                        foreach (string r in GetRecordString(records, fields, bedRecord))
                         {
-                            string record = GetRecordString(dRow, ArrColumn);
-                            eXerFile.WriteLine(record);
+                            eXerFile.WriteLine(r);
+                            counter.Value++;
                         }
+                        if (bedRecord.Count > 0) { errorLog.AddRange(bedRecord); }
                     }
+                    counter.Reset();
+                    //xer footer...
+                    eXerFile.WriteLine("%E");
+                    return true;
                 }
-                //xer footer...
-                eXerFile.WriteLine("%E");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ErrorLog.Add(ex.Message + "\n" + ex.StackTrace);
-                return false;
-            }
+                catch (Exception ex)
+                {
+                    errorLog.Add(ex.Message + "\n" + ex.StackTrace);
+                    return false;
+                }
+            });
         }
 
-        private static string GetRecordString(DataRow dRow, List<string> ArrColumn, List<string> badRecord = null)
+        private static IEnumerable<string> GetRecordString(IEnumerable<DataRow> rows, IEnumerable<string> fields, List<string> badRecord)
         {
-            StringBuilder sb = new();
-            sb.Append("%R");
-
-            foreach (string iColumn in ArrColumn)
+            foreach (DataRow row in rows)
             {
-                object value = dRow[iColumn];
-                if (value != DBNull.Value && value is DateTime time)
+                StringBuilder sb = new();
+                sb.Append("%R");
+                foreach (string field in fields)
                 {
-                    sb.Append(ASC_TAB_CHAR);
-                    sb.Append(time.ToString(@"yyyy-MM-dd HH:mm"));
-                }
-                else if (value != DBNull.Value && value is int)
-                {
-                    sb.Append(ASC_TAB_CHAR);
-                    sb.Append(value.ToString());
-                }
-                else if (value != DBNull.Value && value is decimal v)
-                {
-                    sb.Append(ASC_TAB_CHAR);
-                    sb.Append(v.ToString("0.########"));
-                }
-                else
-                {
-                    string val;
-                    if (EscapeSpecialCharsXml)
+                    object value = row[field];
+                    if (value != DBNull.Value && value is DateTime time)
                     {
-                        val = SecurityElement.Escape(value.ToString());
+                        sb.Append(ASC_TAB_CHAR);
+                        sb.Append(time.ToString(@"yyyy-MM-dd HH:mm"));
+                    }
+                    else if (value != DBNull.Value && value is int)
+                    {
+                        sb.Append(ASC_TAB_CHAR);
+                        sb.Append(value.ToString());
+                    }
+                    else if (value != DBNull.Value && value is decimal v)
+                    {
+                        sb.Append(ASC_TAB_CHAR);
+                        sb.Append(v.ToString("0.########"));
                     }
                     else
                     {
-                        val = value.ToString();
-                        if (val.Contains('\n'))
+                        string val;
+                        if (EscapeSpecialCharsXml)
                         {
-                            val = val.Replace("\x0A", "");
+                            val = SecurityElement.Escape(value.ToString());
                         }
-                        //\n
-                        if (val.Contains('\x0D'))
+                        else
                         {
-                            val = val.Replace("\x0D", "");
-                        }
-                        //\r
-                        if (val.Contains('\x09'))
-                        {
-                            val = val.Replace("\x09", "");
-                        }
-                        //\t
-                        if (val.Contains('\x22'))
-                        {
-                            val = val.Replace("\x22", dblQuote);
-                        }
-                        //Escaping quotation marks
+                            val = value.ToString();
+                            if (val.Contains('\n'))
+                            {
+                                val = val.Replace("\x0A", "");
+                            }
+                            //\n
+                            if (val.Contains('\x0D'))
+                            {
+                                val = val.Replace("\x0D", "");
+                            }
+                            //\r
+                            if (val.Contains('\x09'))
+                            {
+                                val = val.Replace("\x09", "");
+                            }
+                            //\t
+                            if (val.Contains('\x22'))
+                            {
+                                val = val.Replace("\x22", dblQuote);
+                            }
+                            //Escaping quotation marks
 
-                        if (nonPrintable.IsMatch(val) && badRecord != null)
-                        {
-                            val = nonPrintable.Replace(val, replacementChar);
-                            StringBuilder sb1 = new();
-                            sb1.Append(dRow.Table.TableName);
-                            sb1.Append('/');
-                            sb1.Append(iColumn);
-                            sb1.Append(": ");
-                            sb1.Append(value.ToString());
-                            sb1.Append(" / ");
-                            sb1.Append(val);
-                            badRecord.Add(sb1.ToString());
+                            if (nonPrintable.IsMatch(val) && badRecord != null)
+                            {
+                                val = nonPrintable.Replace(val, replacementChar);
+                                badRecord.Add($"{row.Table.TableName}/{field}: {value}/{val}");
+                            }
                         }
+                        sb.Append(ASC_TAB_CHAR);
+                        sb.Append(val);
                     }
-                    sb.Append(ASC_TAB_CHAR);
-                    sb.Append(val);
                 }
+                yield return sb.ToString();
             }
-            return sb.ToString();
         }
         #endregion
 
@@ -576,12 +680,52 @@ namespace XerParser
             remove => onInitializationСompleted -= value;
         }
 
+        private PropertyChangedEventHandler onCounterChanged = null;
+
+        /// <summary>
+        /// The event occurs at changed property.
+        /// </summary>
+        /// <param name="e">PropertyChangedEventArgs</param>
+        protected internal virtual void OnCounterChanged(PropertyChangedEventArgs e)
+        {
+            onCounterChanged?.Invoke(counter, e);
+        }
+
+
+        /// <summary>
+        /// The event occurs at changed property.
+        /// </summary>
+        public event PropertyChangedEventHandler CounterChanged
+        {
+            add => onCounterChanged += value;
+            remove => onCounterChanged -= value;
+        }
+
         /// <inheritdoc/>
         public void Dispose()
         {
-            schemaXer?.Dispose();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="disposing">
+        /// true to release both managed and unmanaged resources; false to release only unmanaged
+        /// </param>
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (!disposing)
+                {
+                    schemaXer?.Dispose();
+                }
+            }
+            disposedValue = true;
+        }
+
         #endregion
 
     }

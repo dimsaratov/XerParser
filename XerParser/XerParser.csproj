@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
  
   <PropertyGroup>
-    <TargetFrameworks>net8.0-windows;net6.0-windows;net472-windows;</TargetFrameworks>
+    <TargetFrameworks>net9.0-windows;net8.0-windows;net6.0-windows;net472-windows;</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <AutoGenerateBindingRedirects>True</AutoGenerateBindingRedirects>
@@ -50,6 +50,15 @@
   </PropertyGroup>
  
   <ItemGroup>
+    <None Update="LICENSE.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>LICENSE.txt</LastGenOutput>
+    </None>
+    <None Update="LICENSE.txt">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LICENSE.tt</DependentUpon>
+    </None>
     <None Update="SchemaXer.xsd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <SubType>Designer</SubType>
@@ -63,4 +72,13 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+ 
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);SYSLIB1045</NoWarn>
+  </PropertyGroup>
+    
+  <!--<ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>-->
+
 </Project>
