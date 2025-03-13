@@ -124,6 +124,7 @@ namespace XerParser
         /// </summary>
         public HashSet<string> LoadedTable { get; } = [];
 
+
         /// <summary>
         /// Xer file encoding, Windows 1251 by default
         /// </summary>
@@ -233,12 +234,14 @@ namespace XerParser
             Stopwatch sw = Stopwatch.StartNew();
             DataSetXer = SchemaXer;
             SetIgnoredTables();
+            //IgnoredTableRemoveRelation();
             await Task.Run(() => XerElements = [.. InternalParse(fileName, dataSet)]);
 
             IEnumerable<Task> tasks = from x in XerElements
                                       where !x.IsInicialized
                                       select x.TaskParsing;
             await Task.WhenAll(tasks);
+            DataSetXer.AcceptChanges();
             sw.Stop();
             OnInitializationСompleted(new InitializeEventArgs(sw.Elapsed));
             GC.Collect();
@@ -248,26 +251,24 @@ namespace XerParser
         {
             ProgressCounter.Reset();
             XerElement e = null;
-            List<List<string>> records = null;
-
             int remUpload = Math.Max(dsXer.Tables.Count - IgnoredTable.Count, LoadedTable.Count);
             bool ignore = false;
 
-            foreach (List<string> line in Parse(ReadLines(fileName)))
+            foreach (string[] line in Parse(ReadLines(fileName)))
             {
                 string flag = line[0];
                 switch (flag)
                 {
                     case tbl:
-                        if (e != null)
+                        if (e is not null)
                         {
-                            e.Records = records;
-                            ProgressCounter.Message = $"парсинг {e.TableName}";
+                            e.records.CompleteAdding();
                             yield return e;
-                            if (remUpload == 0)
-                            {
-                                yield break;
-                            }
+                            e = null;
+                        }
+                        if (remUpload == 0)
+                        {
+                            yield break;
                         }
                         if (IgnoredTable.Contains(line[1]))
                         {
@@ -292,7 +293,6 @@ namespace XerParser
                             continue;
                         }
                         e.FieldNames = line.Skip(1);
-                        records = [];
                         break;
                     case rec:
                         if (reader.BaseStream.CanRead) { ProgressCounter.Value = reader.BaseStream.Position; }
@@ -300,14 +300,14 @@ namespace XerParser
                         {
                             continue;
                         }
-                        records.Add([.. line.Skip(1)]);
+                        e.records.Add([.. line.Skip(1)]);
                         break;
                     case end:
                         if (e is not null)
                         {
-                            e.Records = records;
-                            ProgressCounter.Message = $"парсинг {e.TableName}";
+                            e.records.CompleteAdding();
                             yield return e;
+                            ProgressCounter.Message = $"парсинг {e.TableName}";
                         }
                         break;
                 }
@@ -327,7 +327,7 @@ namespace XerParser
             }
         }
 
-        private static IEnumerable<List<string>> Parse(IEnumerable<string> lines)
+        private static IEnumerable<string[]> Parse(IEnumerable<string> lines)
         {
             IEnumerator<string> e = lines.GetEnumerator();
             while (e.MoveNext())
@@ -336,10 +336,9 @@ namespace XerParser
             }
         }
 
-        private static List<string> ParseLine(IEnumerator<string> e)
+        private static string[] ParseLine(IEnumerator<string> e)
         {
-            List<string> items = [.. GetToken(e)];
-            return items;
+            return [.. GetToken(e)];
         }
 
         private static IEnumerable<string> GetToken(IEnumerator<string> e)
@@ -605,6 +604,15 @@ namespace XerParser
             }
         }
 
+        /// <summary>
+        /// Set loaded table
+        /// </summary>
+        /// <param name="tableNames"></param>
+        public void SetLoadedTable(IEnumerable<string> tableNames)
+        {
+            foreach (string name in tableNames) { LoadedTable.Add(name); }
+        }
+
         private void SetIgnoredTables()
         {
             if (LoadedTable.Count == 0 || dataSet == null)
@@ -620,6 +628,22 @@ namespace XerParser
                 }
             }
         }
+
+        private void IgnoredTableRemoveRelation()
+        {
+            foreach (string item in IgnoredTable)
+            {
+
+                DataRelation[] rel = [.. dataSet.Relations.OfType<DataRelation>()
+                                                .Where(r => r.ParentTable.TableName == item
+                                                         || r.ChildTable.TableName == item)];
+                foreach (DataRelation r in rel)
+                {
+                    dataSet.Relations.Remove(r);
+                }
+            }
+        }
+
         /// <summary>
         /// The procedure for resetting table names that are ignored when loading to the default value
         /// </summary>

@@ -27,22 +27,31 @@ namespace XerParserTest
 
         public async Task Parse(string filePath)
         {
-            PrintStart(nameof(Parse), filePath);
-            parser.ResetIgnoredTable();
             sw = Stopwatch.StartNew();
+            PrintStart(nameof(Parse), filePath);
+            parser.ResetIgnoredTable();            
             Console.WriteLine();
             await parser.LoadXer(filePath);
         }
 
         public async Task ParseCustom(string filePath)
         {
-            PrintStart(nameof(ParseCustom), filePath);
-            parser.ProgressCounter.Reset();
-            parser.LoadedTable.Add("PROJECT");
-            parser.LoadedTable.Add("PROJWBS");
-            parser.LoadedTable.Add("TASK");
             sw = Stopwatch.StartNew();
+            PrintStart(nameof(ParseCustom), filePath);
+            parser.ResetIgnoredTable();
+            parser.ProgressCounter.Reset();
+            parser.SetLoadedTable(["PROJECT","PROJWBS","TASK"]);        
+            await parser.LoadXer(filePath);
+        }
 
+
+        public async Task ParseRsrc(string filePath)
+        {
+            sw = Stopwatch.StartNew();
+            PrintStart(nameof(ParseCustom), filePath);
+            parser.ResetIgnoredTable();
+            parser.ProgressCounter.Reset();
+            parser.SetLoadedTable(["CALENDAR", "RSRC", "UDFTYPE", "UDFVALUE", "UMEASURE"]);     
             await parser.LoadXer(filePath);
         }
 
@@ -77,19 +86,6 @@ namespace XerParserTest
 
         static void PrintResult(Stopwatch sw, XerElement[] res)
         {
-            List<Task> tasks = [];
-            foreach (var x in res)
-            {
-                if (!x.IsInicialized)
-                {
-                    Debug.WriteLine(x.TableName + " waiting...");
-                    tasks.Add(x.TaskParsing);
-                }
-            }
-
-            Task.WaitAll([.. tasks]);
-            GC.Collect();
-
             Console.WriteLine();
             Console.WriteLine($"Таблиц: {res.Length} Время: {sw.Elapsed}");
             Console.Write(new string('*', 75) + '\n');

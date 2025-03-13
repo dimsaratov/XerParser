@@ -5,6 +5,7 @@ using XerParserTest;
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 string path = @"F:\Data\Level2\Level2_Light.xer";
 string pathXer = @"F:\Data\Level2\Test.xer";
+string pathRsrc = @"F:\Data\Resources.xer";
 string pathSchemaXer = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SchemaXer.xsd");
 
 
@@ -18,6 +19,7 @@ Console.WriteLine("1 Полная загрузка");
 Console.WriteLine("2 Загрузка Project,Task,Projwbs");
 Console.WriteLine("3 Построить Xer");
 Console.WriteLine("4 Загрузить построеный Xer");
+Console.WriteLine("5 Загрузить ресурсы Xer");
 Console.WriteLine();
 Console.WriteLine("Esc. Отмена");
 Console.WriteLine(new string('*', 75));
@@ -73,6 +75,20 @@ switch (ki)
         Console.Clear();
         Console.WriteLine("Перезагрузка построенного файла");
         await wrapper.Parse(pathXer);
+        Console.WriteLine("Нажми Enter чтобы продолжить");
+        do
+        {
+            while (!Console.KeyAvailable)
+            {
+                // Do something
+            }
+        } while (Console.ReadKey(true).Key != ConsoleKey.Enter);
+        goto again;
+    case ConsoleKey.NumPad5:
+    case ConsoleKey.D5:
+        Console.Clear();
+        Console.WriteLine("Загрузка ресурсов");
+        await wrapper.ParseRsrc(pathRsrc);
         Console.WriteLine("Нажми Enter чтобы продолжить");
         do
         {

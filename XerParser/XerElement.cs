@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System.Collections.Concurrent;
+using System.Data;
 using System.Diagnostics;
 
 namespace XerParser
@@ -7,23 +8,37 @@ namespace XerParser
     /// <summary>
     /// Wrapper for readable element of the Xer file
     /// </summary>
-    /// <param name="tableName">Table name in Xer file</param>
-    public class XerElement(string tableName)
+    /// <remarks>
+    /// Wrapper for readable element of the Xer file
+    /// </remarks>
+    public class XerElement
     {
         #region Variable
 
         private DataTable table;
         private IEnumerable<string> fields;
-        private IEnumerable<List<string>> records;
         private List<DataSetter> parsers;
-        private readonly string table_name = tableName;
+        private readonly string table_name;
         private DataSet dsXer;
         private readonly Stopwatch stopwatch = Stopwatch.StartNew();
-        private static readonly List<string> list = [];
-
+        internal BlockingCollection<string[]> records = [];
         #endregion
 
+        /// <summary>
+        /// Wrapper for readable element of the Xer file
+        /// </summary>
+        /// <remarks>
+        /// Wrapper for readable element of the Xer file
+        /// </remarks>
+        /// <param name="tableName">Table name in Xer file</param>
+        public XerElement(string tableName)
+        {
+            this.table_name = tableName;
+            TaskParsing = Parse();
+        }
+
         #region Property
+
         /// <summary>
         /// A flag indicating whether the xer element has been read and converted
         /// </summary>
@@ -32,12 +47,11 @@ namespace XerParser
         /// <summary>
         ///  Error sheet when converting fields from XER element
         /// </summary>
-        public List<string> ErrorLog { get; } = list;
+        public List<string> ErrorLog { get; } = [];
 
         /// <summary>
         /// The number of rows of the Xer element table entries
         /// </summary>
-        public int RecordCount => records is null ? 0 : records.Count();
 
         /// <summary>
         /// Table name in Xer file
@@ -75,15 +89,6 @@ namespace XerParser
                 SetValueParser(fields);
             }
         }
-        internal IEnumerable<List<string>> Records
-        {
-            get => records;
-            set
-            {
-                records = value;
-                _ = ConvertValue();
-            }
-        }
 
         internal DataSet DataSetXer
         {
@@ -97,31 +102,35 @@ namespace XerParser
         /// <summary>
         /// Link to the task for converting Xer element strings, supports waiting
         /// </summary>
-        public Task TaskParsing { get; private set; }
+        public Task TaskParsing { get; }
         #endregion
 
         #region ValueParser
+
         private static void WriteErrorLog(List<string> errorLog, string value, int row, string error, string cTable, string field)
         {
             string eString = $"Строка: {row}  Ошибка: {error} Таблица: {cTable} Поле: {field} Значение: {value}";
             errorLog.Add(eString);
         }
 
-        private async Task ConvertValue()
+        private async Task Parse()
         {
-            TaskParsing = Task.Run(() =>
+            await Task.Run(() =>
+            {
+                int idx = 0;
+                while (!records.IsCompleted)
                 {
-                    int idx = 0;
-                    foreach (List<string> record in records)
+                    if (records.TryTake(out string[] rec))
                     {
+                        idx++;
+                        DataRow row = table.NewRow();
                         string value = string.Empty;
                         string field = string.Empty;
                         try
                         {
-                            DataRow row = table.NewRow();
-                            for (int i = 0; i < parsers.Count; i++)
+                            for (int i = 0; i < rec.Length; i++)
                             {
-                                value = record[i];
+                                value = rec[i];
                                 field = parsers[i].Name;
                                 row[field] = parsers[i].ValueParse(value);
                             }
@@ -131,15 +140,10 @@ namespace XerParser
                         {
                             WriteErrorLog(ErrorLog, value, idx, ex.Message, TableName, field);
                         }
-                        idx++;
                     }
-                    records = null;
-                    OnInitialised(new InitializeEventArgs(stopwatch.Elapsed));
-                });
-            await TaskParsing;
-            stopwatch.Stop();
-            Debug.WriteLine($"{TableName,-10}: {stopwatch.Elapsed}");
-            GC.Collect();
+                }
+            });
+            OnInitialised(new(stopwatch.Elapsed));
         }
 
         private void SetValueParser(IEnumerable<string> fields)
@@ -163,8 +167,7 @@ namespace XerParser
         /// <summary>
         /// Internal method for event initiation event Initialized
         /// </summary>
-        /// <param name="e"></param>
-        protected virtual void OnInitialised(InitializeEventArgs e)
+        internal virtual void OnInitialised(InitializeEventArgs e)
         {
             IsInicialized = true;
             onInitialized?.Invoke(this, e);
