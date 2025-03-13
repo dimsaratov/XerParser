@@ -21,7 +21,7 @@ namespace XerParser
         private readonly string table_name;
         private DataSet dsXer;
         private readonly Stopwatch stopwatch = Stopwatch.StartNew();
-        internal BlockingCollection<string[]> records = [];
+        internal BlockingCollection<string[]> records = new(1000);
         #endregion
 
         /// <summary>
@@ -140,6 +140,10 @@ namespace XerParser
                         {
                             WriteErrorLog(ErrorLog, value, idx, ex.Message, TableName, field);
                         }
+                    }
+                    else
+                    {
+                        Thread.SpinWait(100);
                     }
                 }
             });

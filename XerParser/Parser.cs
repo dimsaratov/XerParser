@@ -240,10 +240,11 @@ namespace XerParser
             IEnumerable<Task> tasks = from x in XerElements
                                       where !x.IsInicialized
                                       select x.TaskParsing;
+
             await Task.WhenAll(tasks);
-            DataSetXer.AcceptChanges();
             sw.Stop();
             OnInitializationСompleted(new InitializeEventArgs(sw.Elapsed));
+            await Task.Run(() => DataSetXer.AcceptChanges());
             GC.Collect();
         }
 
