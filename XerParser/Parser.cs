@@ -111,7 +111,7 @@ namespace XerParser
         /// <summary>
         /// Schema of the Xer format dataset
         /// </summary>
-        protected internal DataSet SchemaXer => schemaXer?.Clone();
+        public DataSet SchemaXer => schemaXer?.Clone();
 
         /// <summary>
         /// Hashset is the name of the tables that are ignored when reading the Xer file.

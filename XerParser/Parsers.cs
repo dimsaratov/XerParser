@@ -36,6 +36,16 @@ namespace XerParser
         }
 
         /// <summary>
+        /// Parse to boolean
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static object BoolParse(string value)
+        {
+            return value.Length > 0 && bool.TryParse(value, out bool d) ? d : DBNull.Value;
+        }
+
+        /// <summary>
         /// Required for api returns an unchanged string
         /// </summary>
         /// <param name="value"></param>
@@ -67,6 +77,7 @@ namespace XerParser
                 "DateTime" => new ValueParse(DateTimeParse),
                 "Int32" => new ValueParse(IntParse),
                 "Decimal" => new ValueParse(DecimalParse),
+                "Boolean" => new ValueParse(BoolParse),
                 _ => new ValueParse(StringParse),
             };
         }
