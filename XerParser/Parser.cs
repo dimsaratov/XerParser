@@ -59,7 +59,6 @@ namespace XerParser
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
             this.PathSchemaXER = pathSchemaXer;
-
         }
 
         /// <summary>
@@ -80,8 +79,6 @@ namespace XerParser
             }
 #endif
         }
-
-
         #region Property
         /// <summary>
         /// Default ignored table names. Default "OBS", "POBS", "RISKTYPE"
@@ -170,7 +167,15 @@ namespace XerParser
         /// </summary>
         public static string Currence { get; set; } = "RUB";
 
-        private static string FullName => WindowsIdentity.GetCurrent().Name;
+        private static string FullName
+        {
+            get
+            {
+                fullName ??= WindowsIdentity.GetCurrent().Name;
+                return fullName;
+            }
+            set => fullName = value;
+        }
 
         /// <summary>
         /// Separator for decimal values
@@ -680,6 +685,7 @@ namespace XerParser
         }
 
         private PropertyChangedEventHandler onCounterChanged = null;
+        private static string fullName;
 
         /// <summary>
         /// The event occurs at changed property.

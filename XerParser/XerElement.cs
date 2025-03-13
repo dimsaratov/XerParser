@@ -11,7 +11,6 @@ namespace XerParser
     public class XerElement(string tableName)
     {
         #region Variable
-        internal delegate object ValueParse(string value);
 
         private DataTable table;
         private IEnumerable<string> fields;
