@@ -6,6 +6,7 @@ Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 string path = @"F:\Data\Level2\Level2_Light.xer";
 string pathXer = @"F:\Data\Level2\Test.xer";
 string pathRsrc = @"F:\Data\Resources.xer";
+string pathUser = @"F:\Data\KUR.0120.10UJA.JNG.TM.TB0002.L0003.xer";
 string pathSchemaXer = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "SchemaXer.xsd");
 
 
@@ -15,11 +16,12 @@ again:
 Console.Clear();
 Console.WriteLine();
 Console.WriteLine(new string('*', 75));
-Console.WriteLine("1 Полная загрузка");
-Console.WriteLine("2 Загрузка Project,Task,Projwbs");
-Console.WriteLine("3 Построить Xer");
-Console.WriteLine("4 Загрузить построеный Xer");
-Console.WriteLine("5 Загрузить ресурсы Xer");
+Console.WriteLine($"0 Загрузить {pathUser}");
+Console.WriteLine($"1 Полная загрузка {path}");
+Console.WriteLine($"2 Загрузка Project,Task,Projwbs {path}");
+Console.WriteLine($"3 Построить Xer {pathXer}");
+Console.WriteLine($"4 Загрузить построеный Xer {pathXer}");
+Console.WriteLine($"5 Загрузить ресурсы Xer {pathRsrc}");
 Console.WriteLine();
 Console.WriteLine("Esc. Отмена");
 Console.WriteLine(new string('*', 75));
@@ -89,6 +91,20 @@ switch (ki)
         Console.Clear();
         Console.WriteLine("Загрузка ресурсов");
         await wrapper.ParseRsrc(pathRsrc);
+        Console.WriteLine("Нажми Enter чтобы продолжить");
+        do
+        {
+            while (!Console.KeyAvailable)
+            {
+                // Do something
+            }
+        } while (Console.ReadKey(true).Key != ConsoleKey.Enter);
+        goto again;  
+    case ConsoleKey.NumPad0:
+    case ConsoleKey.D0:
+        Console.Clear();
+        Console.WriteLine($"Загрузка {pathUser}");
+        await wrapper.Parse(pathUser);
         Console.WriteLine("Нажми Enter чтобы продолжить");
         do
         {

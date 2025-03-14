@@ -81,5 +81,17 @@ namespace XerParser
                 _ => new ValueParse(StringParse),
             };
         }
+
+        /// <summary>
+        /// Parse to Decimal
+        /// </summary>
+        /// <param name="value">No use</param>
+        /// <returns></returns>
+#pragma warning disable IDE0060 // Удалите неиспользуемый параметр
+        public static object DbNullParse(string value)
+#pragma warning restore IDE0060 // Удалите неиспользуемый параметр
+        {
+            return DBNull.Value;
+        }
     }
 }

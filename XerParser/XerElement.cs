@@ -16,12 +16,12 @@ namespace XerParser
         #region Variable
 
         private DataTable table;
-        private IEnumerable<string> fields;
-        private List<DataSetter> parsers;
+        private string[] fields;
+        private readonly Dictionary<string, DataSetter> setters = [];
         private readonly string table_name;
         private DataSet dsXer;
         private readonly Stopwatch stopwatch = Stopwatch.StartNew();
-        internal BlockingCollection<string[]> records = new(1000);
+        internal BlockingCollection<string[]> records = [];
         #endregion
 
         /// <summary>
@@ -31,10 +31,13 @@ namespace XerParser
         /// Wrapper for readable element of the Xer file
         /// </remarks>
         /// <param name="tableName">Table name in Xer file</param>
-        public XerElement(string tableName)
+        /// <param name="withFullLog">
+        /// Fix all possible errors, running slower
+        /// </param>
+        public XerElement(string tableName, bool withFullLog)
         {
             this.table_name = tableName;
-            TaskParsing = Parse();
+            TaskParsing = withFullLog ? ParseWithLog() : Parse();
         }
 
         #region Property
@@ -85,8 +88,8 @@ namespace XerParser
             get => fields;
             set
             {
-                fields = value;
-                SetValueParser(fields);
+                fields = [.. value];
+                DefineSetters(fields);
             }
         }
 
@@ -95,7 +98,10 @@ namespace XerParser
             set
             {
                 dsXer = value;
-                dsXer.TryGetTable(table_name, out table);
+                if (dsXer.TryGetTable(table_name, out table))
+                {
+                    table.BeginLoadData();
+                }
             }
         }
 
@@ -113,7 +119,7 @@ namespace XerParser
             errorLog.Add(eString);
         }
 
-        private async Task Parse()
+        private async Task ParseWithLog()
         {
             await Task.Run(() =>
             {
@@ -124,40 +130,74 @@ namespace XerParser
                     {
                         idx++;
                         DataRow row = table.NewRow();
-                        string value = string.Empty;
-                        string field = string.Empty;
-                        try
+                        foreach (string f in fields)
                         {
-                            for (int i = 0; i < rec.Length; i++)
+                            DataSetter setter = setters[f];
                             {
-                                value = rec[i];
-                                field = parsers[i].Name;
-                                row[field] = parsers[i].ValueParse(value);
+                                string value = rec.TryGet(setter.Index);
+                                try
+                                {
+                                    row[f] = setter.Value(value);
+                                }
+                                catch (Exception ex)
+                                {
+                                    WriteErrorLog(ErrorLog, value, idx, ex.Message, TableName, f);
+                                }
                             }
-                            table.Rows.Add(row);
                         }
-                        catch (Exception ex)
-                        {
-                            WriteErrorLog(ErrorLog, value, idx, ex.Message, TableName, field);
-                        }
-                    }
-                    else
-                    {
-                        Thread.SpinWait(100);
                     }
                 }
             });
             OnInitialised(new(stopwatch.Elapsed));
         }
 
-        private void SetValueParser(IEnumerable<string> fields)
+
+
+        private async Task Parse()
         {
-            parsers = [];
-            foreach (string f in fields)
+            await Task.Run(() =>
             {
-                if (table.Columns[f] is DataColumn column)
+                int idx = 0;
+                while (!records.IsCompleted)
                 {
-                    parsers.Add(new(column));
+                    if (records.TryTake(out string[] rec))
+                    {
+                        try
+                        {
+                            table.LoadDataRow([.. ParseRecord(rec)], true);
+                        }
+                        catch (Exception ex)
+                        {
+                            ErrorLog.Add($"{TableName} index row[{idx}] Error:{ex.Message}");
+                        }
+                        idx++;
+                    }
+                }
+            });
+            OnInitialised(new(stopwatch.Elapsed));
+        }
+
+
+        private IEnumerable<object> ParseRecord(string[] record)
+        {
+            foreach (KeyValuePair<string, DataSetter> setter in setters)
+            {
+                yield return setter.Value.Value(record.TryGet(setter.Value.Index));
+            }
+        }
+
+        private void DefineSetters(string[] fields)
+        {
+            foreach (DataColumn column in table.Columns)
+            {
+                int idx = Array.IndexOf(fields, column.ColumnName);
+                if (idx == -1)
+                {
+                    setters.Add(column.ColumnName, new(column));
+                }
+                else
+                {
+                    setters.Add(column.ColumnName, new(column, idx));
                 }
             }
         }
@@ -174,6 +214,7 @@ namespace XerParser
         internal virtual void OnInitialised(InitializeEventArgs e)
         {
             IsInicialized = true;
+            table.EndLoadData();
             onInitialized?.Invoke(this, e);
         }
 
@@ -185,6 +226,6 @@ namespace XerParser
             add => onInitialized += value;
             remove => onInitialized -= value;
         }
-        #endregion 
+        #endregion
     }
 }

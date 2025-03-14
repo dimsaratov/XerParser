@@ -22,17 +22,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <IsPublishable>True</IsPublishable>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <Year>$([System.DateTime]::UtcNow.Year.ToString())</Year>
+    <Major>$([System.DateTime]::UtcNow.ToString(MMdd))</Major>
+  </PropertyGroup>
   
   <PropertyGroup>
     <Authors>Kozupitsa DmA</Authors>
     <AssemblyName>XerParser</AssemblyName>
     <GenerateAssemblyInfo>True</GenerateAssemblyInfo>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Copyright>Copyright © Kozupitsa DmA $([System.DateTime]::UtcNow.ToString(yyyy))</Copyright>
+    <Copyright>Copyright © Kozupitsa DmA $(Year)</Copyright>
     <Title>XerParser</Title>
     <Description>Reading a Xer file to a DataSet and writing a DataSet to an Xer file</Description>
     <Product>XerParser</Product>
-    <VersionSuffix>1.0.$([System.DateTime]::UtcNow.ToString(MMdd)).$([System.DateTime]::Now.ToString(HHmm))</VersionSuffix>
+    <VersionSuffix>1.0.$(Major).$([System.DateTime]::Now.ToString(HHmm))</VersionSuffix>
     <AssemblyVersion Condition=" '$(VersionSuffix)' == '' ">1.0.0.0</AssemblyVersion>
     <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
     <Version Condition=" '$(VersionSuffix)' == '' ">1.0.0.0</Version>

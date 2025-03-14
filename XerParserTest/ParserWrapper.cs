@@ -29,9 +29,20 @@ namespace XerParserTest
         {
             sw = Stopwatch.StartNew();
             PrintStart(nameof(Parse), filePath);
-            parser.ResetIgnoredTable();            
+            parser.ResetIgnoredTable();
             Console.WriteLine();
             await parser.LoadXer(filePath);
+            if (parser.ErrorLog.Count > 0)
+            {
+                Console.WriteLine();
+                Console.WriteLine(new string('.', 75));
+                Console.WriteLine("Errors:");
+                foreach (string s in parser.ErrorLog)
+                {
+                    Console.WriteLine(s);
+                }
+                Console.WriteLine(new string('.', 75));
+            }
         }
 
         public async Task ParseCustom(string filePath)
@@ -81,7 +92,7 @@ namespace XerParserTest
         private void Parser_Initialization(object sender, InitializingEventArgs e)
         {
             decimal progress = Math.Round(parser.ProgressCounter.Percent(), 3);
-            Console.WriteLine($"{e.XerElement.TableName,-10} Время: {e.Elapsed} Строк: {e.XerElement.RowsCount} Позиция: {progress}%");
+            Console.WriteLine($"{e.XerElement.TableName,-10} Время: {e.Elapsed} Строк: {e.XerElement.RowsCount,-10} Позиция: {progress}%");
         }
 
         static void PrintResult(Stopwatch sw, XerElement[] res)

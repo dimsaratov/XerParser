@@ -215,6 +215,11 @@ namespace XerParser
             set => counter = value;
         }
 
+        /// <summary>
+        /// Fix all possible errors, running slower
+        /// </summary>  
+        public bool WithFullLog { get; set; }
+
         private void Counter_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             OnCounterChanged(e);
@@ -224,17 +229,30 @@ namespace XerParser
 
 
         #region Parse
+
         /// <summary>
         /// The function of reading a Xer file and converting it into a dataset
         /// </summary>
         /// <param name="fileName"></param>
-        /// <returns>The path to the Xer file</returns>
+        /// <param name="withFullLog">
+        /// Fix all possible errors, running slower
+        /// </param>
+        public async Task LoadXer(string fileName, bool withFullLog)
+        {
+            WithFullLog = withFullLog;
+            await LoadXer(fileName);
+        }
+
+        /// <summary>
+        /// The function of reading a Xer file and converting it into a dataset
+        /// </summary>
+        /// <param name="fileName"></param>
         public async Task LoadXer(string fileName)
         {
             Stopwatch sw = Stopwatch.StartNew();
             DataSetXer = SchemaXer;
             SetIgnoredTables();
-            //IgnoredTableRemoveRelation();
+
             await Task.Run(() => XerElements = [.. InternalParse(fileName, dataSet)]);
 
             IEnumerable<Task> tasks = from x in XerElements
@@ -242,22 +260,28 @@ namespace XerParser
                                       select x.TaskParsing;
 
             await Task.WhenAll(tasks);
+
+            ErrorLog.AddRange(from x in XerElements
+                              where x.IsErrors
+                              select string.Join('\n', x.ErrorLog));
+
             sw.Stop();
             OnInitializationСompleted(new InitializeEventArgs(sw.Elapsed));
-            await Task.Run(() => DataSetXer.AcceptChanges());
             GC.Collect();
         }
+
 
         private IEnumerable<XerElement> InternalParse(string fileName, DataSet dsXer)
         {
             ProgressCounter.Reset();
             XerElement e = null;
+            bool w_FullLog = WithFullLog;
             int remUpload = Math.Max(dsXer.Tables.Count - IgnoredTable.Count, LoadedTable.Count);
             bool ignore = false;
 
-            foreach (string[] line in Parse(ReadLines(fileName)))
+            foreach (IEnumerable<string> line in Parse(ReadLines(fileName)))
             {
-                string flag = line[0];
+                string flag = line.First();
                 switch (flag)
                 {
                     case tbl:
@@ -271,7 +295,8 @@ namespace XerParser
                         {
                             yield break;
                         }
-                        if (IgnoredTable.Contains(line[1]))
+                        string tblName = line.Last();
+                        if (IgnoredTable.Contains(tblName))
                         {
                             ignore = true;
                             continue;
@@ -280,11 +305,11 @@ namespace XerParser
                         {
                             ignore = false;
                         }
-                        e = new(line[1])
+                        e = new(tblName, w_FullLog)
                         {
                             DataSetXer = dsXer
                         };
-                        ProgressCounter.Message = $"чтение {line[1]}";
+                        ProgressCounter.Message = $"чтение {tblName}";
                         remUpload--;
                         e.Initialized += E_Initialised;
                         break;
@@ -328,7 +353,7 @@ namespace XerParser
             }
         }
 
-        private static IEnumerable<string[]> Parse(IEnumerable<string> lines)
+        private static IEnumerable<IEnumerable<string>> Parse(IEnumerable<string> lines)
         {
             IEnumerator<string> e = lines.GetEnumerator();
             while (e.MoveNext())
@@ -337,14 +362,9 @@ namespace XerParser
             }
         }
 
-        private static string[] ParseLine(IEnumerator<string> e)
+        private static IEnumerable<string> ParseLine(IEnumerator<string> e)
         {
-            return [.. GetToken(e)];
-        }
-
-        private static IEnumerable<string> GetToken(IEnumerator<string> e)
-        {
-            string token = "";
+            StringBuilder token = new();
             State state = State.outQuote;
         again:
             foreach (char c in e.Current)
@@ -354,8 +374,8 @@ namespace XerParser
                     case State.outQuote:
                         if (c == ASC_TAB_CHAR)
                         {
-                            yield return token;
-                            token = "";
+                            yield return token.ToString();
+                            token = new();
                         }
                         else if (c == quote)
                         {
@@ -371,7 +391,7 @@ namespace XerParser
                         }
                         else
                         {
-                            token += c;
+                            token.Append(c);
                         }
 
                         break;
@@ -382,7 +402,7 @@ namespace XerParser
                         }
                         else
                         {
-                            token += c;
+                            token.Append(c);
                         }
 
                         break;
@@ -391,7 +411,7 @@ namespace XerParser
                         {
                             //кавычки внутри кавычек
                             state = State.inQuote;
-                            token += c;
+                            token.Append(c);
                         }
                         else
                         {
@@ -407,7 +427,7 @@ namespace XerParser
                 goto again;
             }
 
-            yield return token;
+            yield return token.ToString();
         }
         #endregion
 
@@ -626,21 +646,6 @@ namespace XerParser
                     !IgnoredTable.Contains(tbl.TableName))
                 {
                     IgnoredTable.Add(tbl.TableName);
-                }
-            }
-        }
-
-        private void IgnoredTableRemoveRelation()
-        {
-            foreach (string item in IgnoredTable)
-            {
-
-                DataRelation[] rel = [.. dataSet.Relations.OfType<DataRelation>()
-                                                .Where(r => r.ParentTable.TableName == item
-                                                         || r.ChildTable.TableName == item)];
-                foreach (DataRelation r in rel)
-                {
-                    dataSet.Relations.Remove(r);
                 }
             }
         }
