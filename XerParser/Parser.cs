@@ -135,6 +135,8 @@ namespace XerParser
         /// </summary>
         public XerElement[] XerElements { get; private set; }
 
+        private Stopwatch sw;
+
         /// <summary>
         /// The data set of the read Xer file
         /// </summary>
@@ -244,12 +246,26 @@ namespace XerParser
         }
 
         /// <summary>
+        /// The function of reading a Xer file and converting it into a dataset,
+        /// returns the presence of parsing errors
+        /// </summary>
+        /// <param name="fileName">path Xer file</param>
+        /// <param name="errorLog">List error</param>         
+        public async Task<bool> LoadXer(string fileName, List<string> errorLog)
+        {
+            await LoadXer(fileName);
+            errorLog ??= [];
+            errorLog.AddRange(ErrorLog);
+            return errorLog.Count == 0;
+        }
+
+        /// <summary>
         /// The function of reading a Xer file and converting it into a dataset
         /// </summary>
-        /// <param name="fileName"></param>
+        /// <param name="fileName">path Xer file</param>
         public async Task LoadXer(string fileName)
         {
-            Stopwatch sw = Stopwatch.StartNew();
+            sw = Stopwatch.StartNew();
             DataSetXer = SchemaXer;
             SetIgnoredTables();
 
