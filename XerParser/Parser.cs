@@ -28,6 +28,8 @@ namespace XerParser
         private static readonly string dblQuote = new('"', 2);
         private const string nonPrintablePattern = @"[\x00-\x09\x0B-\x1F]";
         private const string replacementChar = "#";
+        private const string datetimeformat = @"yyyy-MM-dd HH:mm";
+        private const string decformat = "0.########";
         private static readonly Regex nonPrintable = new(nonPrintablePattern, RegexOptions.Compiled);
         private DataSet dataSet;
         private NumberDecimalSeparator numberDecimalSeparator;
@@ -88,7 +90,7 @@ namespace XerParser
         /// <summary>
         /// Path to file schema of the Xer format dataset
         /// </summary>
-        [Description("Путь к файлу схемы XER Примавера")]
+        [Description(Messages.PathSchemaXER)]
         public string PathSchemaXER
         {
             get => pathSchemaXer;
@@ -325,7 +327,7 @@ namespace XerParser
                         {
                             DataSetXer = dsXer
                         };
-                        ProgressCounter.Message = $"чтение {tblName}";
+                        ProgressCounter.Message = $"{Messages.Reading} {tblName}";
                         remUpload--;
                         e.Initialized += E_Initialised;
                         break;
@@ -349,7 +351,7 @@ namespace XerParser
                         {
                             e.records.CompleteAdding();
                             yield return e;
-                            ProgressCounter.Message = $"парсинг {e.TableName}";
+                            ProgressCounter.Message = $"{Messages.Parsing} {e.TableName}";
                         }
                         break;
                 }
@@ -559,14 +561,14 @@ namespace XerParser
             foreach (DataRow row in rows)
             {
                 StringBuilder sb = new();
-                sb.Append("%R");
+                sb.Append(rec);
                 foreach (string field in fields)
                 {
                     object value = row[field];
                     if (value != DBNull.Value && value is DateTime time)
                     {
                         sb.Append(ASC_TAB_CHAR);
-                        sb.Append(time.ToString(@"yyyy-MM-dd HH:mm"));
+                        sb.Append(time.ToString(datetimeformat));
                     }
                     else if (value != DBNull.Value && value is int)
                     {
@@ -576,7 +578,7 @@ namespace XerParser
                     else if (value != DBNull.Value && value is decimal v)
                     {
                         sb.Append(ASC_TAB_CHAR);
-                        sb.Append(v.ToString("0.########"));
+                        sb.Append(v.ToString(decformat));
                     }
                     else
                     {
