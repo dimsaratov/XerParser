@@ -7,10 +7,8 @@ string path = @"F:\Data\Level2\Level2_Light.xer";
 string pathXer = @"F:\Data\Level2\Test.xer";
 string pathRsrc = @"F:\Data\Resources.xer";
 string pathUser = @"F:\Data\KUR.0120.10UJA.JNG.TM.TB0002.L0003.xer";
-string pathSchemaXer = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Schemas\\SchemaXer.xsd");
 
-
-ParserWrapper wrapper = new(pathSchemaXer);
+ParserWrapper wrapper = new();
 
 again:
 Console.Clear();

@@ -55,7 +55,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="Schemas\SchemaXer.xsd" Pack="true" PackagePath="Schemas">     
+    <Content Include="Schemas/SchemaXer.xsd" Pack="true" PackagePath="build/Schemas">     
       <SubType>Designer</SubType>
       <Generator></Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

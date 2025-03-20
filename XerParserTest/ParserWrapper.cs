@@ -10,9 +10,9 @@ namespace XerParserTest
         Stopwatch sw;
         readonly Parser parser;
 
-        public ParserWrapper(string pathSchemaXer)
+        public ParserWrapper()
         {
-            parser = new(pathSchemaXer);
+            parser = new();
             parser.InitializationСompleted += Parser_InitializationСompleted;
             parser.Initialization += Parser_Initialization;
         }

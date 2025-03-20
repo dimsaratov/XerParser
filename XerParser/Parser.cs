@@ -51,16 +51,12 @@ namespace XerParser
         /// <summary>
         /// Constructor with reading schema Xer
         /// </summary>
-        /// <param name="pathSchemaXer">
-        /// The path to the dataset schema file in
-        /// the default xsd format Schumaxer.xsd
-        /// </param>
-        public Parser(string pathSchemaXer)
+        public Parser()
         {
 #if NET6_0_OR_GREATER
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
-            this.PathSchemaXER = pathSchemaXer;
+            this.PathSchemaXER = System.IO.Path.Combine(AppContext.BaseDirectory, "Schemas", "SchemaXer.xsd");
         }
 
         /// <summary>
@@ -69,7 +65,7 @@ namespace XerParser
         /// <param name="schemaXer">
         /// Schema of the Xer format dataset
         /// </param>
-        public Parser(DataSet schemaXer) : this("")
+        public Parser(DataSet schemaXer) : this()
         {
 #if NET6_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(schemaXer);
@@ -96,19 +92,34 @@ namespace XerParser
             get => pathSchemaXer;
             set
             {
-                if (System.IO.File.Exists(value) && pathSchemaXer != value)
+                if (System.IO.File.Exists(value))
                 {
-                    pathSchemaXer = value;
-                    schemaXer = new("dsXER");
-                    schemaXer.ReadXmlSchema(pathSchemaXer);
+                    if (pathSchemaXer != value || schemaXer is null)
+                    {
+                        pathSchemaXer = value;
+                        schemaXer = new("dsXER");
+                        try
+                        {
+                            schemaXer.ReadXmlSchema(pathSchemaXer);
+                        }
+                        catch (Exception ex)
+                        {
+                            ErrorLog.Add(ex.Message);
+                        }
+                    }
                 }
                 else
                 {
+                    ErrorLog.Add($"The xer schema file was not found: {value}");
                     schemaXer = null;
                     pathSchemaXer = string.Empty;
                 }
             }
         }
+        /// <summary>
+        /// Return status loaded schema xer
+        /// </summary>
+        public bool IsSchemaLoaded => schemaXer is not null && schemaXer.Tables.Count > 0;
 
         /// <summary>
         /// Schema of the Xer format dataset
@@ -230,7 +241,6 @@ namespace XerParser
         }
 
         #endregion
-
 
         #region Parse
 
@@ -363,7 +373,7 @@ namespace XerParser
             FileInfo fileInfo = new(fileName);
             ProgressCounter.Maximum = fileInfo.Length;
             ProgressCounter.Message = fileInfo.Name;
-            using StreamReader sr = new(fileName, Encoding.GetEncoding(1251));
+            using StreamReader sr = new(fileName, Encoding);
             reader = sr;
             while (sr.Peek() >= 0)
             {
