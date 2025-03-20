@@ -53,6 +53,14 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>  
     <PackageTags>XER,PrimaveraXer</PackageTags> 
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="SchemaXer.xsd" Pack="true" PackagePath="File">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+      <Generator></Generator>
+    </Content>
+  </ItemGroup>
  
   <ItemGroup>
     <None Update="LICENSE.tt">
@@ -63,12 +71,6 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>LICENSE.tt</DependentUpon>
-    </None>
-    <None Update="SchemaXer.xsd">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-      <Generator></Generator>
-      <Pack>true</Pack>
     </None>
     <None Include="..\README.md" Pack="true" PackagePath="\">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
