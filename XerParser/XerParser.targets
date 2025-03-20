@@ -7,7 +7,9 @@
   <ItemGroup>
     <Schemas Include="$(MSBuildThisFileDirectory)/Schemas/*.*" />
   </ItemGroup>
+  
   <Target Name="CopyFiles" AfterTargets="Build">
     <Copy SourceFiles="@(Schemas)" DestinationFolder="$(TargetDir)/Schemas/" />
   </Target>
+  
 </Project>

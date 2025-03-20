@@ -64,7 +64,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Directory.Build.targets" PackagePath="build/Directory.Build.targets" />
+    <Content Include="XerParser.targets" PackagePath="build/XerParser.targets" />
   </ItemGroup>
   
   <ItemGroup>
@@ -89,9 +89,5 @@
   <PropertyGroup>
     <NoWarn>$(NoWarn);SYSLIB1045</NoWarn>
   </PropertyGroup>
-    
-  <!--<ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>-->
 
 </Project>
