@@ -55,13 +55,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="SchemaXer.xsd" Pack="true" PackagePath="File">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Include="Schemas\SchemaXer.xsd" Pack="true" PackagePath="Schemas">     
       <SubType>Designer</SubType>
       <Generator></Generator>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <PackageCopyToOutput>true</PackageCopyToOutput>
     </Content>
   </ItemGroup>
- 
+
+  <ItemGroup>
+    <Content Include="Directory.Build.targets" PackagePath="build/Directory.Build.targets" />
+  </ItemGroup>
+  
   <ItemGroup>
     <None Update="LICENSE.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
@@ -72,6 +77,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>LICENSE.tt</DependentUpon>
     </None>
+    
     <None Include="..\README.md" Pack="true" PackagePath="\">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
