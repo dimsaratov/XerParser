@@ -89,7 +89,14 @@ namespace XerParser
             set
             {
                 fields = [.. value];
-                DefineSetters(fields);
+                if (table.Columns.Count > 0)
+                {
+                    DefineSetters(fields);
+                }
+                else
+                {
+                    DefineColumns(fields);
+                }
             }
         }
 
@@ -101,6 +108,11 @@ namespace XerParser
                 if (dsXer.TryGetTable(table_name, out table))
                 {
                     table.BeginLoadData();
+                }
+                else
+                {
+                    table = new(table_name);
+                    dsXer.Tables.Add(table);
                 }
             }
         }
@@ -199,6 +211,27 @@ namespace XerParser
                 {
                     setters.Add(column.ColumnName, new(column, idx));
                 }
+            }
+        }
+
+        private void DefineColumns(string[] fields)
+        {
+            int i = 0;
+            foreach (string f in fields)
+            {
+
+                Type t = typeof(string);
+                if (f == "seq_num" || f.Contains("id", StringComparison.OrdinalIgnoreCase))
+                {
+                    t = typeof(int);
+                }
+                else if (f.Contains("date", StringComparison.OrdinalIgnoreCase))
+                {
+                    t = typeof(DateTime);
+                }
+                DataColumn column = table.Columns.Add(f, t);
+                setters.Add(column.ColumnName, new(column, i));
+                i++;
             }
         }
         #endregion
