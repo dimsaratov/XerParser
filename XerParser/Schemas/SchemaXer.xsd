@@ -152,6 +152,16 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
+        <xs:element name="NONWORK">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="nonwork_type_id	" msdata:AutoIncrement="true" msdata:AutoIncrementSeed="1" type="xs:int" />
+              <xs:element name="seq_num" type="xs:int" minOccurs="0" />
+              <xs:element name="nonwork_code" type="xs:string" minOccurs="0" />
+              <xs:element name="nonwork_type" type="xs:string" minOccurs="0" />
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
         <xs:element name="OBS">
           <xs:complexType>
             <xs:sequence>
