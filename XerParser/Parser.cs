@@ -348,6 +348,7 @@ namespace XerParser
                             e.records.CompleteAdding();
                             yield return e;
                             OnReaded(new(e, false));
+                            ParseCounter.Message = $"{Messages.Parsing} {e.TableName}";
                             e = null;
                         }
                         if (remUpload == 0)
@@ -392,8 +393,8 @@ namespace XerParser
                         {
                             e.records.CompleteAdding();
                             yield return e;
-                            ParseCounter.Message = $"{Messages.Parsing} {e.TableName}";
                             OnReaded(new(e, true));
+                            ParseCounter.Message = $"{Messages.Parsing} {e.TableName}";
                         }
                         break;
                 }
@@ -784,7 +785,7 @@ namespace XerParser
         /// <param name="e">PropertyChangedEventArgs</param>
         protected internal virtual void OnCounterChanged(PropertyChangedEventArgs e)
         {
-            onCounterChanged?.Invoke(ReadCounter, e);
+            onCounterChanged?.Invoke(this, e);
         }
 
         /// <summary>
