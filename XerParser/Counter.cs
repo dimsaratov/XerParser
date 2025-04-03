@@ -32,6 +32,11 @@ namespace XerParser
         }
 
         /// <summary>
+        /// Percentage of completion
+        /// </summary>
+        public decimal Percent => Math.Round(_value / _max * 100, 2);
+
+        /// <summary>
         /// Current value
         /// </summary>
         [DefaultValue(0)]
@@ -68,14 +73,6 @@ namespace XerParser
                     OnPropertyChanged(new PropertyChangedEventArgs(nameof(Maximum)));
                 }
             }
-        }
-        /// <summary>
-        /// Percentage of completion
-        /// </summary>
-        /// <returns></returns>
-        public decimal Percent()
-        {
-            return _value / _max * 100;
         }
 
         /// <summary>

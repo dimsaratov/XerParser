@@ -20,7 +20,7 @@ namespace XerParser
         private readonly Dictionary<string, DataSetter> setters = [];
         private readonly string table_name;
         private DataSet dsXer;
-        private readonly Stopwatch stopwatch = Stopwatch.StartNew();
+        internal readonly Stopwatch stopwatch = Stopwatch.StartNew();
         internal BlockingCollection<string[]> records = [];
         #endregion
 
@@ -72,6 +72,16 @@ namespace XerParser
                 return i ?? 0;
             }
         }
+
+        /// <summary>
+        /// The remaining entries in the parsing queue
+        /// </summary>
+        public int Remains => records.Count;
+
+        /// <summary>
+        /// Parsed records count
+        /// </summary>
+        public int Parsed { get; private set; }
 
         /// <summary>
         /// Flag for errors when reading and converting the Xer element
@@ -133,16 +143,16 @@ namespace XerParser
 
         private async Task ParseWithLog()
         {
-            await Task.Run(() =>
+            await Task.Run((Action)(() =>
             {
-                int idx = 0;
+                this.Parsed = 0;
                 while (!records.IsCompleted)
                 {
                     if (records.TryTake(out string[] rec))
                     {
-                        idx++;
+                        this.Parsed++;
                         DataRow row = table.NewRow();
-                        foreach (string f in fields)
+                        foreach (string f in fields.AsParallel())
                         {
                             DataSetter setter = setters[f];
                             {
@@ -153,13 +163,13 @@ namespace XerParser
                                 }
                                 catch (Exception ex)
                                 {
-                                    WriteErrorLog(ErrorLog, value, idx, ex.Message, TableName, f);
+                                    WriteErrorLog(ErrorLog, value, Parsed, ex.Message, TableName, f);
                                 }
                             }
                         }
                     }
                 }
-            });
+            }));
             OnInitialised(new(stopwatch.Elapsed));
         }
 
@@ -246,8 +256,8 @@ namespace XerParser
         /// </summary>
         internal virtual void OnInitialised(InitializeEventArgs e)
         {
-            IsInicialized = true;
             table.EndLoadData();
+            IsInicialized = true;
             onInitialized?.Invoke(this, e);
         }
 

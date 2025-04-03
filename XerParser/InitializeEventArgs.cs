@@ -4,8 +4,7 @@
     ///  Parameters of the Xer element end-of-reading and conversion event Xer element
     /// </summary>
     /// <param name="xerElement">XerElement</param>
-    /// <param name="time">TimeSpan</param>
-    public class InitializingEventArgs(XerElement xerElement, TimeSpan time) : InitializeEventArgs(time)
+    public class InitializingEventArgs(XerElement xerElement) : InitializeEventArgs(xerElement.stopwatch.Elapsed)
     {
         /// <summary>
         /// 
@@ -26,4 +25,17 @@
         public TimeSpan Elapsed { get; private set; } = time;
     }
 
+    /// <summary>
+    ///  Parameters of the Xer element end-of-reading and conversion event Xer element
+    /// </summary>
+    /// <param name="xerElement">XerElement</param>
+    /// <param name="isСompleted">The reading completed flag</param>
+    public class ReadingEventArgs(XerElement xerElement, bool isСompleted) : InitializingEventArgs(xerElement)
+    {
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsCompleted { get; } = isСompleted;
+
+    }
 }

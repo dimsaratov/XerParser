@@ -9,12 +9,16 @@ namespace XerParserTest
 
         Stopwatch sw;
         readonly Parser parser;
+        int cursorTop;
+        private static readonly object ConsoleWriterLock = new object();
 
         public ParserWrapper()
         {
             parser = new();
             parser.InitializationСompleted += Parser_InitializationСompleted;
             parser.Initialization += Parser_Initialization;
+            parser.Readed += Parser_Readed;
+
         }
 
         private static void PrintStart(string operation, string filePath)
@@ -30,8 +34,8 @@ namespace XerParserTest
             sw = Stopwatch.StartNew();
             PrintStart(nameof(Parse), filePath);
             parser.ResetIgnoredTable();
-            Console.WriteLine();
-            await parser.LoadXer(filePath);
+            await LoadXer(filePath);
+
             if (parser.ErrorLog.Count > 0)
             {
                 Console.WriteLine();
@@ -50,9 +54,8 @@ namespace XerParserTest
             sw = Stopwatch.StartNew();
             PrintStart(nameof(ParseCustom), filePath);
             parser.ResetIgnoredTable();
-            parser.ProgressCounter.Reset();
             parser.SetLoadedTable(["PROJECT","PROJWBS","TASK"]);        
-            await parser.LoadXer(filePath);
+            await LoadXer(filePath);
         }
 
 
@@ -61,9 +64,8 @@ namespace XerParserTest
             sw = Stopwatch.StartNew();
             PrintStart(nameof(ParseCustom), filePath);
             parser.ResetIgnoredTable();
-            parser.ProgressCounter.Reset();
             parser.SetLoadedTable(["CALENDAR", "RSRC", "UDFTYPE", "UDFVALUE", "UMEASURE"]);     
-            await parser.LoadXer(filePath);
+            await LoadXer(filePath);
         }
 
         public async Task Save(string filePath)
@@ -84,15 +86,48 @@ namespace XerParserTest
             }
             Console.WriteLine($"Время записи: {sw.Elapsed}");
         }
+      
         private void Parser_InitializationСompleted(object sender, InitializeEventArgs e)
         {
             PrintResult(sw, parser.XerElements);
         }
 
+        private async Task LoadXer(string filePath)
+        {           
+            await parser.LoadXer(filePath);
+        }
+
         private void Parser_Initialization(object sender, InitializingEventArgs e)
         {
-            decimal progress = Math.Round(parser.ProgressCounter.Percent(), 3);
-            Console.WriteLine($"{e.XerElement.TableName,-10} Время: {e.Elapsed} Строк: {e.XerElement.RowsCount,-10} Позиция: {progress}%");
+            decimal progress = Math.Round(parser.ReadCounter.Percent, 3);
+            Console.WriteLine($"Parsed {e.XerElement.TableName,-10} Время: {e.Elapsed} Строк:\t{e.XerElement.RowsCount}");
+        }
+
+        private void Parser_Readed(object sender, ReadingEventArgs e)
+        {
+
+            decimal progress = Math.Round(parser.ReadCounter.Percent, 3);
+            Console.WriteLine($"Readed {e.XerElement.TableName,-10} Время: {e.Elapsed} Позиция: {progress}%");
+           
+            if (e.IsCompleted)
+            {
+                Console.WriteLine($"Reading complited: {sw.Elapsed}");
+                Console.WriteLine(new string('.', 75));
+                Console.WriteLine($"Parsing: ");
+                cursorTop = Console.CursorTop - 1;
+                parser.ParseCounter.PropertyChanged += ParseCounter_PropertyChanged;
+            }
+        }
+
+        private void ParseCounter_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            lock (ConsoleWriterLock)
+            {
+                (int, int) curr = Console.GetCursorPosition();
+                Console.SetCursorPosition(11, cursorTop);
+                Console.WriteLine($"{(sender as Counter).Percent:0.##}%    ");
+                Console.SetCursorPosition(curr.Item1, curr.Item2);
+            }
         }
 
         static void PrintResult(Stopwatch sw, XerElement[] res)

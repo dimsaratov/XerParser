@@ -40,12 +40,12 @@ namespace XerParser
         protected internal DataSet schemaXer;
         private bool disposedValue;
         private string pathSchemaXer;
+        private static string fullName;
 
         internal static NumberFormatInfo NumberFormat = new()
         {
             NumberDecimalSeparator = @".",
         };
-        private Counter counter;
         #endregion
 
         /// <summary>
@@ -57,6 +57,11 @@ namespace XerParser
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 #endif
             this.PathSchemaXER = System.IO.Path.Combine(AppContext.BaseDirectory, "Schemas", "SchemaXer.xsd");
+
+            ReadCounter = new Counter();
+            ReadCounter.PropertyChanged += Counter_PropertyChanged;
+            ParseCounter = new Counter();
+            ParseCounter.PropertyChanged += Counter_PropertyChanged;
         }
 
         /// <summary>
@@ -65,7 +70,7 @@ namespace XerParser
         /// <param name="schemaXer">
         /// Schema of the Xer format dataset
         /// </param>
-        public Parser(DataSet schemaXer) : this()
+        public Parser(DataSet schemaXer)
         {
 #if NET6_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(schemaXer);
@@ -76,7 +81,13 @@ namespace XerParser
                 throw new ArgumentNullException(nameof(schemaXer));
             }
 #endif
+
+            ReadCounter = new Counter();
+            ReadCounter.PropertyChanged += Counter_PropertyChanged;
+            ParseCounter = new Counter();
+            ParseCounter.PropertyChanged += Counter_PropertyChanged;
         }
+
         #region Property
         /// <summary>
         /// Default ignored table names. Default "OBS", "POBS", "RISKTYPE"
@@ -216,19 +227,13 @@ namespace XerParser
         /// <summary>
         /// A counter for tracking the process of loading a Xer file
         /// </summary>
-        public Counter ProgressCounter
-        {
-            get
-            {
-                if (counter == null)
-                {
-                    counter = new Counter();
-                    counter.PropertyChanged += Counter_PropertyChanged;
-                }
-                return counter;
-            }
-            set => counter = value;
-        }
+        public Counter ReadCounter { get; }
+
+
+        /// <summary>
+        /// A counter for tracking the process of loading a Xer file
+        /// </summary>
+        public Counter ParseCounter { get; }
 
         /// <summary>
         /// Fix all possible errors, running slower
@@ -272,12 +277,22 @@ namespace XerParser
         }
 
         /// <summary>
-        /// The function of reading a Xer file and converting it into a dataset
+        /// The function of  reading a Xer file and converting it into a dataset
         /// </summary>
         /// <param name="fileName">path Xer file</param>
         public async Task LoadXer(string fileName)
         {
+#if NET6_0_OR_GREATER
+            ArgumentNullException.ThrowIfNull(schemaXer);
+#else
+            if (schemaXer == null)
+            {
+                throw new ArgumentNullException(nameof(schemaXer));
+            }
+#endif
+
             sw = Stopwatch.StartNew();
+
             DataSetXer = SchemaXer;
             SetIgnoredTables();
 
@@ -286,8 +301,22 @@ namespace XerParser
             IEnumerable<Task> tasks = from x in XerElements
                                       where !x.IsInicialized
                                       select x.TaskParsing;
-
-            await Task.WhenAll(tasks);
+            Task p = Task.WhenAll(tasks);
+            ParseCounter.Maximum = (from x in XerElements
+                                    where !x.IsInicialized
+                                    select x).Sum(i => i.Remains);
+            await Task.Run(() =>
+            {
+                int rem = (int)ParseCounter.Maximum;
+                while (rem > 0)
+                {
+                    Thread.Sleep(100);
+                    rem = (from x in XerElements
+                           where !x.IsInicialized
+                           select x).Sum(i => i.Remains);
+                    ParseCounter.Value = ParseCounter.Maximum - rem;
+                }
+            });
 
             ErrorLog.AddRange(from x in XerElements
                               where x.IsErrors
@@ -301,7 +330,8 @@ namespace XerParser
 
         private IEnumerable<XerElement> InternalParse(string fileName, DataSet dsXer)
         {
-            ProgressCounter.Reset();
+            ParseCounter.Reset();
+            ReadCounter.Reset();
             XerElement e = null;
             bool w_FullLog = WithFullLog;
             int remUpload = Math.Max(dsXer.Tables.Count - IgnoredTable.Count, LoadedTable.Count);
@@ -317,6 +347,7 @@ namespace XerParser
                         {
                             e.records.CompleteAdding();
                             yield return e;
+                            OnReaded(new(e, false));
                             e = null;
                         }
                         if (remUpload == 0)
@@ -337,7 +368,7 @@ namespace XerParser
                         {
                             DataSetXer = dsXer
                         };
-                        ProgressCounter.Message = $"{Messages.Reading} {tblName}";
+                        ReadCounter.Message = $"{Messages.Reading} {tblName}";
                         remUpload--;
                         e.Initialized += E_Initialised;
                         break;
@@ -349,7 +380,7 @@ namespace XerParser
                         e.FieldNames = line.Skip(1);
                         break;
                     case rec:
-                        if (reader.BaseStream.CanRead) { ProgressCounter.Value = reader.BaseStream.Position; }
+                        if (reader.BaseStream.CanRead) { ReadCounter.Value = reader.BaseStream.Position; }
                         if (ignore)
                         {
                             continue;
@@ -361,7 +392,8 @@ namespace XerParser
                         {
                             e.records.CompleteAdding();
                             yield return e;
-                            ProgressCounter.Message = $"{Messages.Parsing} {e.TableName}";
+                            ParseCounter.Message = $"{Messages.Parsing} {e.TableName}";
+                            OnReaded(new(e, true));
                         }
                         break;
                 }
@@ -371,8 +403,8 @@ namespace XerParser
         private IEnumerable<string> ReadLines(string fileName)
         {
             FileInfo fileInfo = new(fileName);
-            ProgressCounter.Maximum = fileInfo.Length;
-            ProgressCounter.Message = fileInfo.Name;
+            ReadCounter.Maximum = fileInfo.Length;
+            ReadCounter.Message = fileInfo.Name;
             using StreamReader sr = new(fileName, Encoding);
             reader = sr;
             while (sr.Peek() >= 0)
@@ -472,7 +504,7 @@ namespace XerParser
         /// </returns>
         public async Task<bool> BuildXerFile(string path)
         {
-            return await Parser.BuildXerFile(DataSetXer, path, ErrorLog, RemoveEmptyTables, ProgressCounter);
+            return await Parser.BuildXerFile(DataSetXer, path, ErrorLog, RemoveEmptyTables, ReadCounter);
         }
 
         /// <summary>
@@ -697,7 +729,7 @@ namespace XerParser
 
         private void E_Initialised(object sender, InitializeEventArgs e)
         {
-            OnInitialization(new InitializingEventArgs(sender as XerElement, e.Elapsed));
+            OnInitialization(new InitializingEventArgs(sender as XerElement));
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Стили именования", Justification = "<Ожидание>")]
@@ -742,8 +774,9 @@ namespace XerParser
             remove => onInitializationСompleted -= value;
         }
 
+
+
         private PropertyChangedEventHandler onCounterChanged = null;
-        private static string fullName;
 
         /// <summary>
         /// The event occurs at changed property.
@@ -751,9 +784,8 @@ namespace XerParser
         /// <param name="e">PropertyChangedEventArgs</param>
         protected internal virtual void OnCounterChanged(PropertyChangedEventArgs e)
         {
-            onCounterChanged?.Invoke(counter, e);
+            onCounterChanged?.Invoke(ReadCounter, e);
         }
-
 
         /// <summary>
         /// The event occurs at changed property.
@@ -764,6 +796,29 @@ namespace XerParser
             remove => onCounterChanged -= value;
         }
 
+        private EventHandler<ReadingEventArgs> onReaded = null;
+
+        /// <summary>
+        /// The event occurs at readed.
+        /// </summary>
+        /// <param name="e">InitializeEventArgs</param>
+        protected internal virtual void OnReaded(ReadingEventArgs e)
+        {
+            onReaded?.Invoke(this, e);
+        }
+
+        /// <summary>
+        /// The event occurs at changed property.
+        /// </summary>
+        public event EventHandler<ReadingEventArgs> Readed
+        {
+            add => onReaded += value;
+            remove => onReaded -= value;
+        }
+
+        #endregion
+
+        #region Dispose
         /// <inheritdoc/>
         public void Dispose()
         {
