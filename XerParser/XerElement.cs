@@ -151,15 +151,17 @@ namespace XerParser
                     if (records.TryTake(out string[] rec))
                     {
                         this.Parsed++;
-                        DataRow row = table.NewRow();
-                        foreach (string f in fields.AsParallel())
+                        object[] values = new object[fields.Length];
+                        int i = 0;
+                        foreach (string f in fields)
                         {
                             DataSetter setter = setters[f];
                             {
                                 string value = rec.TryGet(setter.Index);
                                 try
                                 {
-                                    row[f] = setter.Value(value);
+                                    values[i] = setter.Value(value);
+                                    i++;
                                 }
                                 catch (Exception ex)
                                 {
@@ -167,6 +169,8 @@ namespace XerParser
                                 }
                             }
                         }
+                        DataRow row = table.Rows.Add(values);
+                        row.AcceptChanges();
                     }
                 }
             }));

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+
 using XerParser;
 
 namespace XerParserTest
@@ -10,7 +11,8 @@ namespace XerParserTest
         Stopwatch sw;
         readonly Parser parser;
         int cursorTop;
-        private static readonly object ConsoleWriterLock = new object();
+        private static readonly Lock ConsoleWriterLock = new();
+        public bool WithFullLog { get => parser.WithFullLog; set => parser.WithFullLog = value; }
 
         public ParserWrapper()
         {
@@ -87,19 +89,20 @@ namespace XerParserTest
             Console.WriteLine($"Время записи: {sw.Elapsed}");
         }
       
-        private void Parser_InitializationСompleted(object sender, InitializeEventArgs e)
-        {
-            PrintResult(sw, parser.XerElements);
-        }
-
         private async Task LoadXer(string filePath)
         {           
             await parser.LoadXer(filePath);
         }
 
+        private void Parser_InitializationСompleted(object sender, InitializeEventArgs e)
+        {
+            parser.ParseCounter.PropertyChanged -= ParseCounter_PropertyChanged;
+            PrintResult(sw, parser.XerElements);
+        }
+
+
         private void Parser_Initialization(object sender, InitializingEventArgs e)
         {
-            decimal progress = Math.Round(parser.ReadCounter.Percent, 3);
             Console.WriteLine($"Parsed {e.XerElement.TableName,-10} Время: {e.Elapsed} Строк:\t{e.XerElement.RowsCount}");
         }
 

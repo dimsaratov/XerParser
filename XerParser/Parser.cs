@@ -302,19 +302,23 @@ namespace XerParser
                                       where !x.IsInicialized
                                       select x.TaskParsing;
             Task p = Task.WhenAll(tasks);
-            ParseCounter.Maximum = (from x in XerElements
-                                    where !x.IsInicialized
-                                    select x).Sum(i => i.Remains);
+
+            int noIni = tasks.Count();
+
             await Task.Run(() =>
             {
                 int rem = (int)ParseCounter.Maximum;
-                while (rem > 0)
+                ParseCounter.Maximum = (from x in XerElements
+                                        where !x.IsInicialized
+                                        select x).Sum(i => i.Remains);
+                while (noIni > 0)
                 {
                     Thread.Sleep(100);
                     rem = (from x in XerElements
                            where !x.IsInicialized
                            select x).Sum(i => i.Remains);
                     ParseCounter.Value = ParseCounter.Maximum - rem;
+                    noIni = XerElements.Where(i => !i.IsInicialized).Count();
                 }
             });
 
