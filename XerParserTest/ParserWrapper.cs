@@ -2,8 +2,6 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-using ExtData;
-
 using XerParser;
 
 namespace XerParserTest

@@ -7,8 +7,6 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 
-using ExtData;
-
 namespace XerParser
 
 {

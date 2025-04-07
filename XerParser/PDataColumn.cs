@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data;
 
-namespace ExtData
+namespace XerParser
 {
 
-
-
-    public class PDataColumn(string columnName, Type dataType) : System.Data.DataColumn(columnName, dataType)
+    public class PDataColumn(string columnName, Type dataType) : DataColumn(columnName, dataType)
     {
 
         public int ChildTypeId { get; set; }

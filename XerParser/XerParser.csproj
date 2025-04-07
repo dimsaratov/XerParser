@@ -63,6 +63,7 @@
     </Content>
   </ItemGroup>
 
+
   <ItemGroup>
     <Content Include="XerParser.targets" PackagePath="build/XerParser.targets" />
   </ItemGroup>
@@ -87,7 +88,15 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\ExtData\ExtData.csproj" />
+    <Compile Update="PDataColumn.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="PDataTable.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Update="PDataRow.cs">
+      <SubType>Component</SubType>
+    </Compile>
   </ItemGroup>
  
   <PropertyGroup>
