@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XerParserTest", "XerParserT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XerParser", "XerParser\XerParser.csproj", "{62587E35-57E9-4E85-805B-B40EE0B932C2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtData", "ExtData\ExtData.csproj", "{111B99BA-744A-B7C1-F0B4-E8135798CC1A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{62587E35-57E9-4E85-805B-B40EE0B932C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62587E35-57E9-4E85-805B-B40EE0B932C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62587E35-57E9-4E85-805B-B40EE0B932C2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{111B99BA-744A-B7C1-F0B4-E8135798CC1A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{111B99BA-744A-B7C1-F0B4-E8135798CC1A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{111B99BA-744A-B7C1-F0B4-E8135798CC1A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{111B99BA-744A-B7C1-F0B4-E8135798CC1A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

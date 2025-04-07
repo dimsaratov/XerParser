@@ -7,10 +7,9 @@
     public class InitializingEventArgs(XerElement xerElement) : InitializeEventArgs(xerElement.stopwatch.Elapsed)
     {
         /// <summary>
-        /// 
+        /// XerElement
         /// </summary>
         public XerElement XerElement { get; } = xerElement;
-
     }
 
     /// <summary>

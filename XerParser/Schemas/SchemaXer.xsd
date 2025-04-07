@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<xs:schema id="dsXER" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+<xs:schema id="dsXER" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" xmlns:msprop="urn:schemas-microsoft-com:xml-msprop">
   <xs:element name="dsXER" msdata:IsDataSet="true" msdata:UseCurrentLocale="true">
     <xs:complexType>
       <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -864,7 +864,6 @@
     </xs:complexType>
     <xs:unique name="idx_actv_code_id" msdata:PrimaryKey="true">
       <xs:selector xpath=".//ACTVCODE" />
-      <xs:field xpath="actv_code_type_id" />
       <xs:field xpath="actv_code_id" />
     </xs:unique>
     <xs:unique name="idx_actv_code_type_id" msdata:PrimaryKey="true">

@@ -1,4 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System.Data;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
+
+using ExtData;
 
 using XerParser;
 
@@ -19,8 +23,15 @@ namespace XerParserTest
             parser = new();
             parser.InitializationСompleted += Parser_InitializationСompleted;
             parser.Initialization += Parser_Initialization;
+            parser.CreatedRelationColumns += Parser_CreatedRelationColumns;
             parser.Readed += Parser_Readed;
+            parser.CreateRelationColumns = true;
 
+        }
+
+        private void Parser_CreatedRelationColumns(object sender, InitializeEventArgs e)
+        {
+            Console.WriteLine("Связанные колонки добавлены: " + e.Elapsed);
         }
 
         private static void PrintStart(string operation, string filePath)
@@ -40,15 +51,18 @@ namespace XerParserTest
 
             if (parser.ErrorLog.Count > 0)
             {
-                Console.WriteLine();
-                Console.WriteLine(new string('.', 75));
-                Console.WriteLine("Errors:");
+                Console.WriteLine("Errors occurred when parsing the file (Произошли ошибки): ");
                 foreach (string s in parser.ErrorLog)
                 {
-                    Console.WriteLine(s);
-                }
-                Console.WriteLine(new string('.', 75));
+                    string s2 = SplitToLines(s, 75);
+                    Console.WriteLine(s2);
+                }               
             }
+            else
+            {
+                Console.WriteLine("No mistakes / Без ошибок");
+            }
+            Console.WriteLine(new string('.', 75));
         }
 
         public async Task ParseCustom(string filePath)
@@ -103,14 +117,14 @@ namespace XerParserTest
 
         private void Parser_Initialization(object sender, InitializingEventArgs e)
         {
-            Console.WriteLine($"Parsed {e.XerElement.TableName,-10} Время: {e.Elapsed} Строк:\t{e.XerElement.RowsCount}");
+            Console.WriteLine($"Parsed {e.XerElement.TableName,-10} Время: {e.Elapsed} Строк: {e.XerElement.RowsCount}");
         }
 
         private void Parser_Readed(object sender, ReadingEventArgs e)
         {
 
             decimal progress = Math.Round(parser.ReadCounter.Percent, 3);
-            Console.WriteLine($"Readed {e.XerElement.TableName,-10} Время: {e.Elapsed} Позиция: {progress}%");
+            Console.WriteLine($"Readed {e.XerElement.TableName,-10} Время: {e.Elapsed} Полей: {e.XerElement.FieldCount,-5 } Позиция: {progress}%");
            
             if (e.IsCompleted)
             {
@@ -133,12 +147,16 @@ namespace XerParserTest
             }
         }
 
-        static void PrintResult(Stopwatch sw, XerElement[] res)
-        {
+        private static void PrintResult(Stopwatch sw, XerElement[] res)
+        {     
             Console.WriteLine();
             Console.WriteLine($"Таблиц: {res.Length} Время: {sw.Elapsed}");
             Console.Write(new string('*', 75) + '\n');
-            Console.WriteLine();
+        }
+
+        private static string SplitToLines(string str, int n)
+        {
+            return Regex.Replace(str, ".{" + n + "}(?!$)", "$0\n");
         }
     }
 }

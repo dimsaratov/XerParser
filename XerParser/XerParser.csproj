@@ -85,6 +85,10 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\ExtData\ExtData.csproj" />
+  </ItemGroup>
  
   <PropertyGroup>
     <NoWarn>$(NoWarn);SYSLIB1045</NoWarn>

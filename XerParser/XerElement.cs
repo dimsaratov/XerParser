@@ -110,6 +110,11 @@ namespace XerParser
             }
         }
 
+        /// <summary>
+        /// Number of fields
+        /// </summary>
+        public int FieldCount => fields.Length;
+
         internal DataSet DataSetXer
         {
             set
@@ -181,28 +186,34 @@ namespace XerParser
 
         private async Task Parse()
         {
-            await Task.Run(() =>
+            try
             {
-                int idx = 0;
-                while (!records.IsCompleted)
+                await Task.Run(() =>
                 {
-                    if (records.TryTake(out string[] rec))
+                    int idx = 0;
+                    while (!records.IsCompleted)
                     {
-                        try
+                        if (records.TryTake(out string[] rec))
                         {
-                            table.LoadDataRow([.. ParseRecord(rec)], true);
+                            try
+                            {
+                                DataRow row = table.LoadDataRow([.. ParseRecord(rec)], true);
+                            }
+                            catch (Exception ex)
+                            {
+                                ErrorLog.Add($"{TableName} index row[{idx}] Error:{ex.Message}");
+                            }
+                            idx++;
                         }
-                        catch (Exception ex)
-                        {
-                            ErrorLog.Add($"{TableName} index row[{idx}] Error:{ex.Message}");
-                        }
-                        idx++;
                     }
-                }
-            });
-            OnInitialised(new(stopwatch.Elapsed));
+                });
+                OnInitialised(new(stopwatch.Elapsed));
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.Add($"{TableName} Error:{ex.Message}");
+            }
         }
-
 
         private IEnumerable<object> ParseRecord(string[] record)
         {

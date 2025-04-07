@@ -7,6 +7,8 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 
+using ExtData;
+
 namespace XerParser
 
 {
@@ -112,6 +114,8 @@ namespace XerParser
                         try
                         {
                             schemaXer.ReadXmlSchema(pathSchemaXer);
+                            schemaXer.ReplaceTableTask();
+                            schemaXer.AcceptChanges();
                         }
                         catch (Exception ex)
                         {
@@ -131,6 +135,16 @@ namespace XerParser
         /// Return status loaded schema xer
         /// </summary>
         public bool IsSchemaLoaded => schemaXer is not null && schemaXer.Tables.Count > 0;
+
+        /// <summary>
+        /// Flag adding columns related to a value
+        /// </summary>
+        public bool CreateRelationColumns { get; set; } = false;
+
+        /// <summary>
+        /// Columns related to the value have been added
+        /// </summary>
+        public bool IsRelationColumnAdded { get; private set; } = false;
 
         /// <summary>
         /// Schema of the Xer format dataset
@@ -292,7 +306,7 @@ namespace XerParser
 #endif
 
             sw = Stopwatch.StartNew();
-
+            IsRelationColumnAdded = false;
             DataSetXer = SchemaXer;
             SetIgnoredTables();
 
@@ -309,7 +323,7 @@ namespace XerParser
             {
                 int rem = (int)ParseCounter.Maximum;
                 ParseCounter.Maximum = (from x in XerElements
-                                        where !x.IsInicialized
+                                        where !x.IsInicialized && !(x.TaskParsing.Status == TaskStatus.RanToCompletion)
                                         select x).Sum(i => i.Remains);
                 while (noIni > 0)
                 {
@@ -318,7 +332,7 @@ namespace XerParser
                            where !x.IsInicialized
                            select x).Sum(i => i.Remains);
                     ParseCounter.Value = ParseCounter.Maximum - rem;
-                    noIni = XerElements.Where(i => !i.IsInicialized).Count();
+                    noIni = XerElements.Where(i => !i.IsInicialized && !(i.TaskParsing.Status == TaskStatus.RanToCompletion)).Count();
                 }
             });
 
@@ -326,11 +340,87 @@ namespace XerParser
                               where x.IsErrors
                               select string.Join('\n', x.ErrorLog));
 
+            if (CreateRelationColumns)
+            {
+                await SetParentDataColumn();
+            }
+
             sw.Stop();
             OnInitializationСompleted(new InitializeEventArgs(sw.Elapsed));
             GC.Collect();
         }
 
+        /// <summary>
+        /// Adding columns related to a value
+        /// </summary>
+        public async Task SetParentDataColumn()
+        {
+            Stopwatch sw = Stopwatch.StartNew();
+            await Task.Run(() =>
+            {
+                try
+                {
+                    DataColumnCollection collection = DataSetXer.Tables["UDFVALUE"].Columns;
+
+                    DataColumn c = collection.Add("table_name", typeof(string), "Parent(rel_udf_type).[table_name]");
+                    c.ExtendedProperties.Add("NoExport", true);
+                    c.ReadOnly = true;
+                    c = DataSetXer.Tables["UDFVALUE"].Columns.Add("udf_type_name", typeof(string), "Parent(rel_udf_type).[udf_type_name]");
+                    c.ExtendedProperties.Add("NoExport", true);
+                    c.ReadOnly = true;
+                    c = DataSetXer.Tables["UDFVALUE"].Columns.Add("udf_type_label", typeof(string), "Parent(rel_udf_type).[udf_type_label]");
+
+                    //c = DataSetXer.Tables["UDFVALUE"].Columns.Add("udf_value", typeof(string),
+                    //                    "IIF(Parent(rel_udf_type).[logical_data_type]='FT_TEXT', udf_text, " +
+                    //                    "IIF(Parent(rel_udf_type).[logical_data_type] LIKE '*DATE', udf_date, " +
+                    //                    "IIF(Parent(rel_udf_type).[logical_data_type]= 'FT_STATICTYPE', udf_code_id, udf_number)))");
+                    //c.ExtendedProperties.Add("NoExport", true);
+                    //c.ReadOnly = true;
+
+                    collection = DataSetXer.Tables["DOCUMENT"].Columns;
+                    c = collection.Add("doc_catg_name", typeof(string), "Parent(rel_doc_catg).[doc_catg_name]");
+                    c.ExtendedProperties.Add("NoExport", true);
+                    c.ReadOnly = true;
+                    c = collection.Add("doc_status_code", typeof(string), "Parent(rel_doc_stat).[doc_status_code]");
+                    c.ExtendedProperties.Add("NoExport", true);
+                    c.ReadOnly = true;
+
+                    collection = DataSetXer.Tables["TASKDOC"].Columns;
+                    c = collection.Add("doc_catg_name", typeof(string), "Parent(rel_doc_task).[doc_catg_name]");
+                    c.ExtendedProperties.Add("NoExport", true);
+                    c.ReadOnly = true;
+                    c = collection.Add("doc_status_code", typeof(string), "Parent(rel_doc_task).[doc_status_code]");
+                    c.ExtendedProperties.Add("NoExport", true);
+                    c.ReadOnly = true;
+                    c = collection.Add("doc_short_name", typeof(string), "Parent(rel_doc_task).[doc_short_name]");
+                    c.ExtendedProperties.Add("NoExport", true);
+                    c.ReadOnly = true;
+                    c = collection.Add("doc_name", typeof(string), "Parent(rel_doc_task).[doc_name]");
+                    c.ExtendedProperties.Add("NoExport", true);
+                    c.ReadOnly = true;
+                    c = collection.Add("doc_seq_num", typeof(int), "Parent(rel_doc_task).[doc_seq_num]");
+                    c.ExtendedProperties.Add("NoExport", true);
+                    c.ReadOnly = true;
+
+                    collection = DataSetXer.Tables["TASKACTV"].Columns;
+                    c = collection.Add("actv_code_type", typeof(string), "Parent(rel_actv_type_task).[actv_code_type]");
+                    c.ExtendedProperties.Add("NoExport", true);
+                    c.ReadOnly = true;
+                    c = collection.Add("short_name", typeof(string), "Parent(rel_actv_code_task).[short_name]");
+                    c.ExtendedProperties.Add("NoExport", true);
+                    c.ReadOnly = true;
+                    c = collection.Add("actv_code_name", typeof(string), "Parent(rel_actv_code_task).[actv_code_name]");
+                    c.ExtendedProperties.Add("NoExport", true);
+                    c.ReadOnly = true;
+                    IsRelationColumnAdded = true;
+                }
+                catch (Exception ex)
+                {
+                    ErrorLog.Add("Создание связанных полей: " + ex.Message);
+                }
+            });
+            OnCreatedRelationColumns(new InitializeEventArgs(sw.Elapsed));
+        }
 
         private IEnumerable<XerElement> InternalParse(string fileName, DataSet dsXer)
         {
@@ -576,7 +666,11 @@ namespace XerParser
                         eXerFile.WriteLine($"{tbl}\t{dTable.TableName}");
 
                         //write field header...
-                        IEnumerable<string> fields = dTable.Columns.Cast<DataColumn>().Select(c => c.ColumnName);
+                        IEnumerable<string> fields = from c in dTable.Columns.Cast<DataColumn>()
+                                                     where !c.ExtendedProperties.ContainsKey("NoExport") ||
+                                                     !(bool)c.ExtendedProperties["NoExport"]
+                                                     select c.ColumnName;
+
                         string f = $"{fld}\t{string.Join(ASC_TAB_CHAR.ToString(), fields)}";
                         eXerFile.WriteLine(f);
 
@@ -819,6 +913,25 @@ namespace XerParser
         {
             add => onReaded += value;
             remove => onReaded -= value;
+        }
+
+        private event EventHandler<InitializeEventArgs> onCreatedRelationColumns;
+
+        /// <summary>
+        /// Internal method for event at the end of create Relation Data Columns.
+        /// </summary>
+        internal virtual void OnCreatedRelationColumns(InitializeEventArgs e)
+        {
+            onCreatedRelationColumns?.Invoke(this, e);
+        }
+
+        /// <summary>
+        ///  The event occurs at the end of create Relation Data Columns.
+        /// </summary>
+        public event EventHandler<InitializeEventArgs> CreatedRelationColumns
+        {
+            add => onCreatedRelationColumns += value;
+            remove => onCreatedRelationColumns -= value;
         }
 
         #endregion
