@@ -61,6 +61,26 @@ namespace XerParserTest
                 Console.WriteLine("No mistakes / Без ошибок");
             }
             Console.WriteLine(new string('.', 75));
+
+
+            ActivityDataTable table = (ActivityDataTable)parser.DataSetXer.Tables["TASK"];
+
+            table.Columns.Add(new UdfDataColumn("user_field_131", typeof(string))
+            {
+                ChildTypeId = 131,
+                ChildFieldValueName = "udf_text"
+            });
+
+            table.Columns.Add(new ActivityCodeDataColumn("actv_code_460", typeof(string))
+            {
+                ChildTypeId = 460,
+                ChildFieldValueName = "short_name"
+            });
+
+            foreach (ActivityDataRow row in table.Rows.Cast<ActivityDataRow>())
+            {
+                Console.WriteLine($"TaskCode:{row["task_code"]} {table.Columns[62].ColumnName}: {row.ItemArray[62]} {table.Columns[63].ColumnName}: {row.ItemArray[63]}");
+            }
         }
 
         public async Task ParseCustom(string filePath)

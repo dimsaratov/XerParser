@@ -44,7 +44,7 @@ namespace XerParser
         {
             DataTable table = ds.Tables["TASK"];
 
-            PDataTable task = new(table.TableName);
+            ActivityDataTable task = new(table.TableName);
             task.Columns.AddRange([.. table.Columns.Cast<DataColumn>().Select(c => new DataColumn(c.ColumnName, c.DataType))]);
 
             DataSet dataSet = table.DataSet;

@@ -72,15 +72,10 @@ namespace XerParser
         /// </param>
         public Parser(DataSet schemaXer)
         {
-#if NET6_0_OR_GREATER
+
             ArgumentNullException.ThrowIfNull(schemaXer);
             this.schemaXer = schemaXer;
-#else
-            if (schemaXer == null)
-            {
-                throw new ArgumentNullException(nameof(schemaXer));
-            }
-#endif
+
 
             ReadCounter = new Counter();
             ReadCounter.PropertyChanged += Counter_PropertyChanged;

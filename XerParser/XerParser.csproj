@@ -88,13 +88,17 @@
   </ItemGroup>
   
   <ItemGroup>
-    <Compile Update="PDataColumn.cs">
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Update="ChildDataColumn.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="PDataTable.cs">
+    <Compile Update="ActivityDataTable.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Update="PDataRow.cs">
+    <Compile Update="ActivityDataRow.cs">
       <SubType>Component</SubType>
     </Compile>
   </ItemGroup>
