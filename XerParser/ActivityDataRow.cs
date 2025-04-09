@@ -1,5 +1,5 @@
 ﻿using System.Data;
-using System.Diagnostics;
+using System.Reflection;
 
 namespace XerParser
 {
@@ -9,70 +9,86 @@ namespace XerParser
         {
         }
 
-        public new object this[int idx]
-        {
-            get => Table.Columns[idx] is ChildDataColumn column ? GetChildValue(column) : base[idx];
-            set
-            {
-                if (Table.Columns[idx] is not ChildDataColumn)
-                {
-                    base[idx] = value;
-                }
-            }
-        }
-
-        private IEnumerable<ChildDataColumn> GetChildDataColumns()
-        {
-            foreach (DataColumn column in Table.Columns)
-            {
-                switch (column.GetType().Name)
-                {
-                    case "ActivityCodeDataColumn":
-                        yield return (ActivityCodeDataColumn)column;
-                        break;
-                    case "UdfDataColumn":
-                        yield return (UdfDataColumn)column;
-                        break;
-                }
-            }
-        }
-
-
         public new object[] ItemArray
         {
             get
             {
-                object[] array = base.ItemArray;
-                foreach (ChildDataColumn column in GetChildDataColumns())
+                object[] array = new object[Table.Columns.Count];
+                int record = Table.Rows.IndexOf(this);
+                for (int i = 0; i < Table.Columns.Count; i++)
                 {
-                    int idx = Table.Columns.IndexOf(column);
-                    array[idx] = GetChildValue(column);
+                    array[i] = GetItem(i, record);
                 }
                 return array;
             }
             set => base.ItemArray = value;
         }
 
+#pragma warning disable CA1859 // Используйте конкретные типы, когда это возможно, для повышения производительности
+        private object GetItem(int idx, int record)
+#pragma warning restore CA1859 // Используйте конкретные типы, когда это возможно, для повышения производительности
+        {
+            dynamic column = Table.Columns[idx];
+            Type type = column.GetType();
+            if (type.GetMethod("get_Item", BindingFlags.Instance | BindingFlags.NonPublic) is MethodInfo ps)
+            {
+#pragma warning disable IDE0300 // Упростите инициализацию коллекции
+                return ps.Invoke(column, new object[] { record });
+#pragma warning restore IDE0300 // Упростите инициализацию коллекции
+            }
+            return DBNull.Value;
+        }
+
+#pragma warning disable CA1859 // Используйте конкретные типы, когда это возможно, для повышения производительности
+        private object GetItem(string columnName, int record)
+#pragma warning restore CA1859 // Используйте конкретные типы, когда это возможно, для повышения производительности
+        {
+            dynamic column = Table.Columns[columnName];
+            Type type = column.GetType();
+            if (type.GetMethod("get_Item", BindingFlags.Instance | BindingFlags.NonPublic) is MethodInfo ps)
+            {
+#pragma warning disable IDE0300 // Упростите инициализацию коллекции
+                return ps.Invoke(column, new object[] { record });
+#pragma warning restore IDE0300 // Упростите инициализацию коллекции
+            }
+            return DBNull.Value;
+        }
+
 
         public new object this[string columnName]
         {
-            get => Table.Columns[columnName] is ChildDataColumn column ? GetChildValue(column) : base[columnName];
+            get
+            {
+                int record = Table.Rows.IndexOf(this);
+                return GetItem(columnName, record);
+            }
             set
             {
-                if (Table.Columns[columnName] is not ChildDataColumn)
-                {
-                    base[columnName] = value;
-                }
+                int idx = Table.Columns.IndexOf(columnName);
+                this[idx] = value;
             }
         }
 
-        private object GetChildValue(ChildDataColumn column)
+
+        public new object this[int idx]
         {
-            return GetChildRows(column.DataRelationName).AsEnumerable()
-                                                        .Where(r => r.Field<int>(column.ChildFieldTypeIdName) == column.ChildTypeId)
-                                                        .FirstOrDefault() is DataRow childRow
-                ? childRow[column.ChildFieldValueName]
-                : null;
+            get
+            {
+                int record = Table.Rows.IndexOf(this);
+                return GetItem(idx, record);
+            }
+            set
+            {
+                if (Table.Columns[idx] is ChildDataColumn col && !col.ReadOnly)
+                {
+                    dynamic column = Table.Columns[idx];
+                    column[idx] = value;
+                }
+                else
+                {
+                    base[idx] = value;
+                }
+            }
         }
     }
 }

@@ -22,9 +22,6 @@ namespace XerParser
             return new ActivityDataRow(builder);
         }
 
-
-        
-
         protected override ActivityDataTable CreateInstance()
         {
             return (ActivityDataTable)Activator.CreateInstance(GetType(), true)!;
