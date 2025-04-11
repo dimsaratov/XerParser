@@ -90,5 +90,10 @@ namespace XerParser
                 }
             }
         }
+
+        public Type GetDataType(string dataPropertyItem)
+        {
+            return this.Table?.Columns[dataPropertyItem]?.DataType;
+        }
     }
 }
