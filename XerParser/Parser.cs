@@ -7,6 +7,8 @@ using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 
+using XerParser.Enums;
+
 namespace XerParser
 
 {
@@ -88,6 +90,10 @@ namespace XerParser
         /// Default ignored table names. Default "OBS", "POBS", "RISKTYPE"
         /// </summary>
         public string[] DefaultIgnoredTable { get; set; } = ["OBS", "POBS", "RISKTYPE"];
+
+        public static PrimaveraVersion VersionPM { get; set; } = PrimaveraVersion.Primavera192;
+
+        public static string Creator { get; set; } = "XerParser";
 
         /// <summary>
         /// Path to file schema of the Xer format dataset
@@ -632,14 +638,14 @@ namespace XerParser
                     //xer header (TP/P3e)...
                     string header = string.Join(ASC_TAB_CHAR.ToString(),
                                                 [ "ERMHDR",
-                                              "19.12" ,
-                                              DateTime.Now.ToString("yyyy-MM-dd"),
-                                              "Project" ,
-                                              userName,
-                                              FullName,
-                                                  "Xer",
-                                              "Project Management",
-                                              Currence]);
+                                                  VersionPM.GetDescription(),
+                                                  DateTime.Now.ToString("yyyy-MM-dd"),
+                                                  "Project" ,
+                                                  userName,
+                                                  FullName,
+                                                  Creator,
+                                                  "Project Management",
+                                                  Currence]);
                     eXerFile.WriteLine(header);
 
                     foreach (DataTable dTable in dataSetXer.Tables)
