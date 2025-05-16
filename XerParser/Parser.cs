@@ -91,7 +91,8 @@ namespace XerParser
         /// </summary>
         public string[] DefaultIgnoredTable { get; set; } = ["OBS", "POBS", "RISKTYPE"];
 
-        public static PrimaveraVersion VersionPM { get; set; } = PrimaveraVersion.Primavera192;
+        [DefaultValue(PrimaveraVersion.Primavera188)]
+        public static PrimaveraVersion VersionPM { get; set; } = PrimaveraVersion.Primavera188;
 
         public static string Creator { get; set; } = "XerParser";
 

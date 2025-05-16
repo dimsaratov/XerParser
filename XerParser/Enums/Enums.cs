@@ -2,16 +2,48 @@
 
 namespace XerParser.Enums
 {
+    /// <summary>
+    /// Версия индикатора файла Primavera
+    /// </summary>
     public enum PrimaveraVersion
     {
+        /// <summary>
+        /// Primavera version 6.2
+        /// </summary>
         [Description("6.2")]
         Primavera62,
 
-        [Description("19.2")]
-        Primavera192,
+        /// <summary>
+        /// Primavera version 18.8
+        /// </summary>
+        [Description("18.8")]
+        Primavera188,
+
+        /// <summary>
+        /// Primavera version 19.12
+        /// </summary>
+        [Description("19.12")]
+        Primavera1912,
     }
 
-    public static class Enums
+    /// <summary>
+    /// 
+    /// </summary>
+    public enum NumberDecimalSeparator
+    {
+        /// <summary>
+        /// Point separator
+        /// </summary>
+        [Description("Точка")]
+        Point,
+        /// <summary>
+        /// Comma separator
+        /// </summary>
+        [Description("Запятая")]
+        Comma
+    }
+
+    public static class Extensions
     {
         /// <summary>
         /// Получить атрибут "Описание"
