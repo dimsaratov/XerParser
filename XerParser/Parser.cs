@@ -637,7 +637,7 @@ namespace XerParser
                                               "Project" ,
                                               userName,
                                               FullName,
-                                              "XerBuilder",
+                                                  "Xer",
                                               "Project Management",
                                               Currence]);
                     eXerFile.WriteLine(header);
