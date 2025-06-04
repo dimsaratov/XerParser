@@ -55,10 +55,9 @@ namespace XerParser
         /// </summary>
         public Parser()
         {
-#if NET6_0_OR_GREATER
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-#endif
-            this.PathSchemaXER = System.IO.Path.Combine(AppContext.BaseDirectory, "Schemas", "SchemaXer.xsd");
+
+            PathSchemaXER = Path.Combine(AppContext.BaseDirectory, "Schemas", "SchemaXer.xsd");
 
             ReadCounter = new Counter();
             ReadCounter.PropertyChanged += Counter_PropertyChanged;
@@ -667,8 +666,8 @@ namespace XerParser
 
                         //write field header...
                         IEnumerable<string> fields = from c in dTable.Columns.Cast<DataColumn>()
-                                                     where !c.ExtendedProperties.ContainsKey("NoExport") ||
-                                                     !(bool)c.ExtendedProperties["NoExport"]
+                                                     where (!c.ExtendedProperties.ContainsKey("NoExport") ||
+                                                     !(bool)c.ExtendedProperties["NoExport"]) && !c.ReadOnly
                                                      select c.ColumnName;
 
                         string f = $"{fld}\t{string.Join(ASC_TAB_CHAR.ToString(), fields)}";
