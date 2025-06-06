@@ -27,6 +27,7 @@ namespace XerParser
         private const string tbl = "%T";
         private const string fld = "%F";
         private const string end = "%E";
+        public const string NoExport = "NoExport";
         private static readonly string dblQuote = new('"', 2);
         private const string nonPrintablePattern = @"[\x00-\x09\x0B-\x1F]";
         private const string replacementChar = "#";
@@ -43,6 +44,8 @@ namespace XerParser
         private bool disposedValue;
         private string pathSchemaXer;
         private static string fullName;
+        private ParsingTables table_names;
+        private bool isLoading = false;
 
         internal static NumberFormatInfo NumberFormat = new()
         {
@@ -56,11 +59,7 @@ namespace XerParser
         public Parser()
         {
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-
             PathSchemaXER = Path.Combine(AppContext.BaseDirectory, "Schemas", "SchemaXer.xsd");
-
-            ReadCounter = new Counter();
-            ReadCounter.PropertyChanged += Counter_PropertyChanged;
             ParseCounter = new Counter();
             ParseCounter.PropertyChanged += Counter_PropertyChanged;
         }
@@ -76,10 +75,6 @@ namespace XerParser
 
             ArgumentNullException.ThrowIfNull(schemaXer);
             this.schemaXer = schemaXer;
-
-
-            ReadCounter = new Counter();
-            ReadCounter.PropertyChanged += Counter_PropertyChanged;
             ParseCounter = new Counter();
             ParseCounter.PropertyChanged += Counter_PropertyChanged;
         }
@@ -240,12 +235,6 @@ namespace XerParser
         /// <summary>
         /// A counter for tracking the process of loading a Xer file
         /// </summary>
-        public Counter ReadCounter { get; }
-
-
-        /// <summary>
-        /// A counter for tracking the process of loading a Xer file
-        /// </summary>
         public Counter ParseCounter { get; }
 
         /// <summary>
@@ -295,15 +284,13 @@ namespace XerParser
         /// <param name="fileName">path Xer file</param>
         public async Task LoadXer(string fileName)
         {
-#if NET6_0_OR_GREATER
             ArgumentNullException.ThrowIfNull(schemaXer);
-#else
-            if (schemaXer == null)
+            if (isLoading)
             {
-                throw new ArgumentNullException(nameof(schemaXer));
+                return;
             }
-#endif
-
+            isLoading = true;
+            table_names = new();
             sw = Stopwatch.StartNew();
             IsRelationColumnAdded = false;
             DataSetXer = SchemaXer;
@@ -320,7 +307,7 @@ namespace XerParser
 
             await Task.Run(() =>
             {
-                int rem = (int)ParseCounter.Maximum;
+                int rem;
                 ParseCounter.Maximum = (from x in XerElements
                                         where !x.IsInicialized && !(x.TaskParsing.Status == TaskStatus.RanToCompletion)
                                         select x).Sum(i => i.Remains);
@@ -345,8 +332,27 @@ namespace XerParser
             }
 
             sw.Stop();
-            OnInitializationСompleted(new InitializeEventArgs(sw.Elapsed));
+            OnInitializationСompleted(new InitializingEventArgs(sw.Elapsed));
+            isLoading = false;
             GC.Collect();
+        }
+
+
+        private bool AddRelationColumns(string tableName, string columnName, Type T, string expression)
+        {
+            try
+            {
+                if (DataSetXer.Tables.Contains(tableName))
+                {
+                    DataColumnCollection collection = DataSetXer.Tables[tableName].Columns;
+                    DataColumn column = collection.Add(columnName, T, expression);
+                    column.ExtendedProperties.Add(NoExport, true);
+                    column.ReadOnly = true;
+                    return true;
+                }
+            }
+            catch { }
+            return false;
         }
 
         /// <summary>
@@ -359,58 +365,28 @@ namespace XerParser
             {
                 try
                 {
-                    DataColumnCollection collection = DataSetXer.Tables["UDFVALUE"].Columns;
+                    AddRelationColumns("UDFVALUE", "table_name", typeof(string), "Parent(rel_udf_type).[table_name]");
+                    AddRelationColumns("UDFVALUE", "udf_type_name", typeof(string), "Parent(rel_udf_type).[udf_type_name]");
+                    AddRelationColumns("UDFVALUE", "udf_type_label", typeof(string), "Parent(rel_udf_type).[udf_type_label]");
+                    //AddRelationColumns("UDFVALUE", "udf_value",
+                    //                   "IIF(Parent(rel_udf_type).[logical_data_type]='FT_TEXT', udf_text, " +
+                    //                   "IIF(Parent(rel_udf_type).[logical_data_type] LIKE '*DATE', udf_date, " +
+                    //                   "IIF(Parent(rel_udf_type).[logical_data_type]= 'FT_STATICTYPE', udf_text, udf_number)))");
 
-                    DataColumn c = collection.Add("table_name", typeof(string), "Parent(rel_udf_type).[table_name]");
-                    c.ExtendedProperties.Add("NoExport", true);
-                    c.ReadOnly = true;
-                    c = DataSetXer.Tables["UDFVALUE"].Columns.Add("udf_type_name", typeof(string), "Parent(rel_udf_type).[udf_type_name]");
-                    c.ExtendedProperties.Add("NoExport", true);
-                    c.ReadOnly = true;
-                    c = DataSetXer.Tables["UDFVALUE"].Columns.Add("udf_type_label", typeof(string), "Parent(rel_udf_type).[udf_type_label]");
 
-                    //c = DataSetXer.Tables["UDFVALUE"].Columns.Add("udf_value", typeof(string),
-                    //                    "IIF(Parent(rel_udf_type).[logical_data_type]='FT_TEXT', udf_text, " +
-                    //                    "IIF(Parent(rel_udf_type).[logical_data_type] LIKE '*DATE', udf_date, " +
-                    //                    "IIF(Parent(rel_udf_type).[logical_data_type]= 'FT_STATICTYPE', udf_code_id, udf_number)))");
-                    //c.ExtendedProperties.Add("NoExport", true);
-                    //c.ReadOnly = true;
+                    AddRelationColumns("DOCUMENT", "doc_catg_name", typeof(string), "Parent(rel_doc_catg).[doc_catg_name]");
+                    AddRelationColumns("DOCUMENT", "doc_status_code", typeof(string), "Parent(rel_doc_stat).[doc_status_code]");
 
-                    collection = DataSetXer.Tables["DOCUMENT"].Columns;
-                    c = collection.Add("doc_catg_name", typeof(string), "Parent(rel_doc_catg).[doc_catg_name]");
-                    c.ExtendedProperties.Add("NoExport", true);
-                    c.ReadOnly = true;
-                    c = collection.Add("doc_status_code", typeof(string), "Parent(rel_doc_stat).[doc_status_code]");
-                    c.ExtendedProperties.Add("NoExport", true);
-                    c.ReadOnly = true;
+                    AddRelationColumns("TASKDOC", "doc_catg_name", typeof(string), "Parent(rel_doc_task).[doc_catg_name]");
+                    AddRelationColumns("TASKDOC", "doc_status_code", typeof(string), "Parent(rel_doc_task).[doc_status_code]");
+                    AddRelationColumns("TASKDOC", "doc_short_name", typeof(string), "Parent(rel_doc_task).[doc_short_name]");
+                    AddRelationColumns("TASKDOC", "doc_name", typeof(string), "Parent(rel_doc_task).[doc_name]");
+                    AddRelationColumns("TASKDOC", "doc_seq_num", typeof(int), "Parent(rel_doc_task).[doc_seq_num]");
 
-                    collection = DataSetXer.Tables["TASKDOC"].Columns;
-                    c = collection.Add("doc_catg_name", typeof(string), "Parent(rel_doc_task).[doc_catg_name]");
-                    c.ExtendedProperties.Add("NoExport", true);
-                    c.ReadOnly = true;
-                    c = collection.Add("doc_status_code", typeof(string), "Parent(rel_doc_task).[doc_status_code]");
-                    c.ExtendedProperties.Add("NoExport", true);
-                    c.ReadOnly = true;
-                    c = collection.Add("doc_short_name", typeof(string), "Parent(rel_doc_task).[doc_short_name]");
-                    c.ExtendedProperties.Add("NoExport", true);
-                    c.ReadOnly = true;
-                    c = collection.Add("doc_name", typeof(string), "Parent(rel_doc_task).[doc_name]");
-                    c.ExtendedProperties.Add("NoExport", true);
-                    c.ReadOnly = true;
-                    c = collection.Add("doc_seq_num", typeof(int), "Parent(rel_doc_task).[doc_seq_num]");
-                    c.ExtendedProperties.Add("NoExport", true);
-                    c.ReadOnly = true;
+                    AddRelationColumns("TASKACTV", "actv_code_type", typeof(string), "Parent(rel_actv_type_task).[actv_code_type]");
+                    AddRelationColumns("TASKACTV", "short_name", typeof(string), "Parent(rel_actv_code_task).[short_name]");
+                    AddRelationColumns("TASKACTV", "actv_code_name", typeof(string), "Parent(rel_actv_code_task).[actv_code_name]");
 
-                    collection = DataSetXer.Tables["TASKACTV"].Columns;
-                    c = collection.Add("actv_code_type", typeof(string), "Parent(rel_actv_type_task).[actv_code_type]");
-                    c.ExtendedProperties.Add("NoExport", true);
-                    c.ReadOnly = true;
-                    c = collection.Add("short_name", typeof(string), "Parent(rel_actv_code_task).[short_name]");
-                    c.ExtendedProperties.Add("NoExport", true);
-                    c.ReadOnly = true;
-                    c = collection.Add("actv_code_name", typeof(string), "Parent(rel_actv_code_task).[actv_code_name]");
-                    c.ExtendedProperties.Add("NoExport", true);
-                    c.ReadOnly = true;
                     IsRelationColumnAdded = true;
                 }
                 catch (Exception ex)
@@ -418,13 +394,12 @@ namespace XerParser
                     ErrorLog.Add("Создание связанных полей: " + ex.Message);
                 }
             });
-            OnCreatedRelationColumns(new InitializeEventArgs(sw.Elapsed));
+            OnCreatedRelationColumns(new InitializingEventArgs(sw.Elapsed));
         }
 
         private IEnumerable<XerElement> InternalParse(string fileName, DataSet dsXer)
         {
             ParseCounter.Reset();
-            ReadCounter.Reset();
             XerElement e = null;
             bool w_FullLog = WithFullLog;
             int remUpload = Math.Max(dsXer.Tables.Count - IgnoredTable.Count, LoadedTable.Count);
@@ -441,7 +416,6 @@ namespace XerParser
                             e.records.CompleteAdding();
                             yield return e;
                             OnReaded(new(e, false));
-                            ParseCounter.Message = $"{Messages.Parsing} {e.TableName}";
                             e = null;
                         }
                         if (remUpload == 0)
@@ -462,7 +436,7 @@ namespace XerParser
                         {
                             DataSetXer = dsXer
                         };
-                        ReadCounter.Message = $"{Messages.Reading} {tblName}";
+                        ParseCounter.Message = $"{Messages.Reading} {tblName}";
                         remUpload--;
                         e.Initialized += E_Initialised;
                         break;
@@ -474,7 +448,7 @@ namespace XerParser
                         e.FieldNames = line.Skip(1);
                         break;
                     case rec:
-                        if (reader.BaseStream.CanRead) { ReadCounter.Value = reader.BaseStream.Position; }
+                        if (reader.BaseStream.CanRead) { ParseCounter.Value = reader.BaseStream.Position; }
                         if (ignore)
                         {
                             continue;
@@ -486,8 +460,8 @@ namespace XerParser
                         {
                             e.records.CompleteAdding();
                             yield return e;
+                            ParseCounter.Value = 0;
                             OnReaded(new(e, true));
-                            ParseCounter.Message = $"{Messages.Parsing} {e.TableName}";
                         }
                         break;
                 }
@@ -497,8 +471,7 @@ namespace XerParser
         private IEnumerable<string> ReadLines(string fileName)
         {
             FileInfo fileInfo = new(fileName);
-            ReadCounter.Maximum = fileInfo.Length;
-            ReadCounter.Message = fileInfo.Name;
+            ParseCounter.Maximum = fileInfo.Length;
             using StreamReader sr = new(fileName, Encoding);
             reader = sr;
             while (sr.Peek() >= 0)
@@ -598,7 +571,7 @@ namespace XerParser
         /// </returns>
         public async Task<bool> BuildXerFile(string path)
         {
-            return await Parser.BuildXerFile(DataSetXer, path, ErrorLog, RemoveEmptyTables, ReadCounter);
+            return await Parser.BuildXerFile(DataSetXer, path, ErrorLog, RemoveEmptyTables, ParseCounter);
         }
 
         /// <summary>
@@ -825,19 +798,25 @@ namespace XerParser
 
         #region Events
 
-        private void E_Initialised(object sender, InitializeEventArgs e)
+        private void E_Initialised(object sender, InitializingEventArgs e)
         {
-            OnInitialization(new InitializingEventArgs(sender as XerElement));
+            XerElement el = sender as XerElement;
+            table_names.Remove(el.TableName);
+            if (table_names.TryPop(out string name))
+            {
+                ParseCounter.Message = $"{Messages.Parsing} {name}";
+            }
+            OnInitialization(new InitializedEventArgs(sender as XerElement));
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Стили именования", Justification = "<Ожидание>")]
-        private event EventHandler<InitializingEventArgs> onInitializing;
+        private event EventHandler<InitializedEventArgs> onInitializing;
 
         /// <summary>
         /// The event occurs at the end of reading and converting a separate table from a Xer file.
         /// </summary>
         /// <param name="e">InitializingEventArgs</param>
-        protected internal virtual void OnInitialization(InitializingEventArgs e)
+        protected internal virtual void OnInitialization(InitializedEventArgs e)
         {
             onInitializing?.Invoke(this, e);
         }
@@ -845,20 +824,20 @@ namespace XerParser
         /// <summary>
         /// The event occurs at the end of reading and converting a separate table from a Xer file.
         /// </summary>
-        public event EventHandler<InitializingEventArgs> Initialization
+        public event EventHandler<InitializedEventArgs> Initialization
         {
             add => onInitializing += value;
             remove => onInitializing -= value;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Стили именования", Justification = "<Ожидание>")]
-        private event EventHandler<InitializeEventArgs> onInitializationСompleted;
+        private event EventHandler<InitializingEventArgs> onInitializationСompleted;
 
         /// <summary>
         /// The event occurs at the end of reading and converting the Xer file into a dataset.
         /// </summary>
         /// <param name="e">InitializeEventArgs</param>
-        protected internal virtual void OnInitializationСompleted(InitializeEventArgs e)
+        protected internal virtual void OnInitializationСompleted(InitializingEventArgs e)
         {
             onInitializationСompleted?.Invoke(this, e);
         }
@@ -866,13 +845,11 @@ namespace XerParser
         /// <summary>
         /// The event occurs at the end of reading and converting the Xer file into a dataset.
         /// </summary>
-        public event EventHandler<InitializeEventArgs> InitializationСompleted
+        public event EventHandler<InitializingEventArgs> InitializationСompleted
         {
             add => onInitializationСompleted += value;
             remove => onInitializationСompleted -= value;
         }
-
-
 
         private PropertyChangedEventHandler onCounterChanged = null;
 
@@ -894,32 +871,33 @@ namespace XerParser
             remove => onCounterChanged -= value;
         }
 
-        private EventHandler<ReadingEventArgs> onReaded = null;
+        private EventHandler<ReadedEventArgs> onReaded = null;
 
         /// <summary>
         /// The event occurs at readed.
         /// </summary>
         /// <param name="e">InitializeEventArgs</param>
-        protected internal virtual void OnReaded(ReadingEventArgs e)
+        protected internal virtual void OnReaded(ReadedEventArgs e)
         {
+            table_names.Push(e.XerElement.TableName);
             onReaded?.Invoke(this, e);
         }
 
         /// <summary>
         /// The event occurs at changed property.
         /// </summary>
-        public event EventHandler<ReadingEventArgs> Readed
+        public event EventHandler<ReadedEventArgs> Readed
         {
             add => onReaded += value;
             remove => onReaded -= value;
         }
 
-        private event EventHandler<InitializeEventArgs> onCreatedRelationColumns;
+        private event EventHandler<InitializingEventArgs> onCreatedRelationColumns;
 
         /// <summary>
         /// Internal method for event at the end of create Relation Data Columns.
         /// </summary>
-        internal virtual void OnCreatedRelationColumns(InitializeEventArgs e)
+        internal virtual void OnCreatedRelationColumns(InitializingEventArgs e)
         {
             onCreatedRelationColumns?.Invoke(this, e);
         }
@@ -927,7 +905,7 @@ namespace XerParser
         /// <summary>
         ///  The event occurs at the end of create Relation Data Columns.
         /// </summary>
-        public event EventHandler<InitializeEventArgs> CreatedRelationColumns
+        public event EventHandler<InitializingEventArgs> CreatedRelationColumns
         {
             add => onCreatedRelationColumns += value;
             remove => onCreatedRelationColumns -= value;

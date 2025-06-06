@@ -14,7 +14,7 @@ namespace XerParser
         internal DataSetter(DataColumn column, int index)
         {
             Column = column;
-            this.Index = index;
+            Index = index;
             ValueParse = Parsers.ValueParse(column.DataType.Name);
         }
 

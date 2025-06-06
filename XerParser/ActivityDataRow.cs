@@ -93,7 +93,7 @@ namespace XerParser
 
         public Type GetDataType(string dataPropertyItem)
         {
-            return this.Table?.Columns[dataPropertyItem]?.DataType;
+            return Table?.Columns[dataPropertyItem]?.DataType;
         }
     }
 }

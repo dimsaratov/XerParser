@@ -4,7 +4,7 @@
     ///  Parameters of the Xer element end-of-reading and conversion event Xer element
     /// </summary>
     /// <param name="xerElement">XerElement</param>
-    public class InitializingEventArgs(XerElement xerElement) : InitializeEventArgs(xerElement.stopwatch.Elapsed)
+    public class InitializedEventArgs(XerElement xerElement) : InitializingEventArgs(xerElement.stopwatch.Elapsed)
     {
         /// <summary>
         /// XerElement
@@ -16,7 +16,7 @@
     /// Parameters of the Xer element end-of-reading and conversion event Xer file
     /// </summary>
     /// <param name="time">TimeSpan</param>
-    public class InitializeEventArgs(TimeSpan time) : EventArgs
+    public class InitializingEventArgs(TimeSpan time) : EventArgs
     {
         /// <summary>
         /// The time interval after completing the reading and conversion of the Xer
@@ -29,7 +29,7 @@
     /// </summary>
     /// <param name="xerElement">XerElement</param>
     /// <param name="isСompleted">The reading completed flag</param>
-    public class ReadingEventArgs(XerElement xerElement, bool isСompleted) : InitializingEventArgs(xerElement)
+    public class ReadedEventArgs(XerElement xerElement, bool isСompleted) : InitializedEventArgs(xerElement)
     {
         /// <summary>
         /// 

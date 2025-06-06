@@ -23,11 +23,11 @@ namespace XerParserTest
             parser.Initialization += Parser_Initialization;
             parser.CreatedRelationColumns += Parser_CreatedRelationColumns;
             parser.Readed += Parser_Readed;
-            parser.CreateRelationColumns = true;
+            parser.CreateRelationColumns = false;
 
         }
 
-        private void Parser_CreatedRelationColumns(object sender, InitializeEventArgs e)
+        private void Parser_CreatedRelationColumns(object sender, InitializingEventArgs e)
         {
             Console.WriteLine("Связанные колонки добавлены: " + e.Elapsed);
         }
@@ -54,7 +54,7 @@ namespace XerParserTest
                 {
                     string s2 = SplitToLines(s, 75);
                     Console.WriteLine(s2);
-                }               
+                }
             }
             else
             {
@@ -62,24 +62,27 @@ namespace XerParserTest
             }
             Console.WriteLine(new string('.', 75));
 
-
-            ActivityDataTable table = (ActivityDataTable)parser.DataSetXer.Tables["TASK"];
-
-            table.Columns.Add(new UdfDataColumn("user_field_131", typeof(string))
+            if (parser.CreateRelationColumns)
             {
-                ChildTypeId = 131,
-                ChildFieldValueName = "udf_text"
-            });
+                ActivityDataTable table = (ActivityDataTable)parser.DataSetXer.Tables["TASK"];
 
-            table.Columns.Add(new ActivityCodeDataColumn("actv_code_460", typeof(string))
-            {
-                ChildTypeId = 460,
-                ChildFieldValueName = "short_name"
-            });
+                table.Columns.Add(new UdfDataColumn("user_field_131", typeof(string))
+                {
+                    ChildTypeId = 131,
+                    ChildFieldValueName = "udf_text"
+                });
 
-            foreach (ActivityDataRow row in table.Rows.Cast<ActivityDataRow>())
-            {
-                Console.WriteLine($"TaskCode:{row["task_code"]} {table.Columns[62].ColumnName}: {row.ItemArray[62]} {table.Columns[63].ColumnName}: {row.ItemArray[63]}");
+                table.Columns.Add(new ActivityCodeDataColumn("actv_code_460", typeof(string))
+                {
+                    ChildTypeId = 460,
+                    ChildFieldValueName = "short_name"
+                });
+
+                foreach (ActivityDataRow row in table.Rows.Cast<ActivityDataRow>())
+                {
+                    Console.WriteLine($"TaskCode:{row["task_code"]} {table.Columns[62].ColumnName}: {row.ItemArray[62]} {table.Columns[63].ColumnName}: {row.ItemArray[63]}");
+
+                }
             }
         }
 
@@ -126,24 +129,31 @@ namespace XerParserTest
             await parser.LoadXer(filePath);
         }
 
-        private void Parser_InitializationСompleted(object sender, InitializeEventArgs e)
+        private void Parser_InitializationСompleted(object sender, InitializingEventArgs e)
         {
             parser.ParseCounter.PropertyChanged -= ParseCounter_PropertyChanged;
             PrintResult(sw, parser.XerElements);
         }
 
 
-        private void Parser_Initialization(object sender, InitializingEventArgs e)
+        private void Parser_Initialization(object sender, InitializedEventArgs e)
         {
-            Console.WriteLine($"Parsed {e.XerElement.TableName,-10} Время: {e.Elapsed} Строк: {e.XerElement.RowsCount}");
+            Console.WriteLine($"Parsed {e.XerElement.TableName,-12} " +
+                              $"Время: {e.Elapsed.Seconds}.{e.Elapsed.Milliseconds,-7:0000} " +
+                              $"Строк: {e.XerElement.RowsCount,-25}" +
+                              $"::{parser.ParseCounter.Message}");
         }
 
-        private void Parser_Readed(object sender, ReadingEventArgs e)
+        private void Parser_Readed(object sender, ReadedEventArgs e)
         {
 
-            decimal progress = Math.Round(parser.ReadCounter.Percent, 3);
-            Console.WriteLine($"Readed {e.XerElement.TableName,-10} Время: {e.Elapsed} Полей: {e.XerElement.FieldCount,-5 } Позиция: {progress}%");
-           
+            Console.WriteLine($"Readed {e.XerElement.TableName,-12} " +
+                              $"Время: {e.Elapsed.Seconds}.{e.Elapsed.Milliseconds,-7:0000} " +
+                              $"Полей: {e.XerElement.FieldCount,-7 } " +
+                              $"Позиция: {parser.ParseCounter.Percent,-6:##0.00}% " +
+                              $"::{parser.ParseCounter.Message}");
+
+
             if (e.IsCompleted)
             {
                 Console.WriteLine($"Reading complited: {sw.Elapsed}");
@@ -159,7 +169,6 @@ namespace XerParserTest
             lock (ConsoleWriterLock)
             {
                 (int, int) curr = Console.GetCursorPosition();
-                Console.SetCursorPosition(11, cursorTop);
                 Console.WriteLine($"{(sender as Counter).Percent:0.##}%    ");
                 Console.SetCursorPosition(curr.Item1, curr.Item2);
             }

@@ -36,7 +36,7 @@ namespace XerParser
         /// </param>
         public XerElement(string tableName, bool withFullLog)
         {
-            this.table_name = tableName;
+            table_name = tableName;
             TaskParsing = withFullLog ? ParseWithLog() : Parse();
         }
 
@@ -150,12 +150,12 @@ namespace XerParser
         {
             await Task.Run((Action)(() =>
             {
-                this.Parsed = 0;
+                Parsed = 0;
                 while (!records.IsCompleted)
                 {
                     if (records.TryTake(out string[] rec))
                     {
-                        this.Parsed++;
+                        Parsed++;
                         object[] values = new object[fields.Length];
                         int i = 0;
                         foreach (string f in fields)
@@ -264,12 +264,12 @@ namespace XerParser
         #region Events
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Стили именования", Justification = "<Ожидание>")]
-        private event EventHandler<InitializeEventArgs> onInitialized;
+        private event EventHandler<InitializingEventArgs> onInitialized;
 
         /// <summary>
         /// Internal method for event initiation event Initialized
         /// </summary>
-        internal virtual void OnInitialised(InitializeEventArgs e)
+        internal virtual void OnInitialised(InitializingEventArgs e)
         {
             table.EndLoadData();
             IsInicialized = true;
@@ -279,7 +279,7 @@ namespace XerParser
         /// <summary>
         ///  The event occurs at the end of reading and converting current Xer Element.
         /// </summary>
-        public event EventHandler<InitializeEventArgs> Initialized
+        public event EventHandler<InitializingEventArgs> Initialized
         {
             add => onInitialized += value;
             remove => onInitialized -= value;

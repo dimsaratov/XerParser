@@ -4,7 +4,8 @@ using System.Text;
 using XerParserTest;
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-string path = @"F:\Data\Level2\Level2_Light.xer";
+//string path = @"F:\Data\Level2\Level2_Light.xer";
+string path = @"F:\Данные для тестов\Блок 1-2(04.2025)\RupNPP_Lev2_1_V26-B1.xer";
 string pathXer = @"F:\Data\Level2\Test.xer";
 string pathRsrc = @"F:\Data\Resources.xer";
 string pathUser = @"F:\Data\KUR.0120.10UJA.JNG.TM.TB0002.L0003.xer";
