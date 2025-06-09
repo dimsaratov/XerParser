@@ -318,13 +318,23 @@ namespace XerParser
                            where !x.IsInicialized
                            select x).Sum(i => i.Remains);
                     ParseCounter.Value = ParseCounter.Maximum - rem;
-                    noIni = XerElements.Where(i => !i.IsInicialized && !(i.TaskParsing.Status == TaskStatus.RanToCompletion)).Count();
+                    IEnumerable<XerElement> rem_xe = XerElements.Where(i => !i.IsInicialized
+                                                                  && !(i.TaskParsing.Status == TaskStatus.RanToCompletion
+                                                                    && i.TaskParsing.Status == TaskStatus.Faulted));
+                    noIni = rem_xe.Count();
                 }
             });
 
             ErrorLog.AddRange(from x in XerElements
                               where x.IsErrors
                               select string.Join('\n', x.ErrorLog));
+
+
+
+            if (RemoveEmptyTables)
+            {
+                RemoveEmpty();
+            }
 
             if (CreateRelationColumns)
             {
@@ -337,6 +347,25 @@ namespace XerParser
             GC.Collect();
         }
 
+        public void RemoveEmpty()
+        {
+            DataTable[] et = [.. from t in DataSetXer.Tables.Cast<DataTable>()
+                                 where t.Rows.Count == 0
+                                 select t];
+
+            foreach (DataTable t in et)
+            {
+                DataRelation[] rel = [.. DataSetXer.Relations.OfType<DataRelation>()
+                                                   .Where(r => r.ParentTable.TableName == t.TableName
+                                                         || r.ChildTable.TableName == t.TableName)];
+                foreach (DataRelation r in rel)
+                {
+                    dataSet.Relations.Remove(r);
+                }
+                DataSetXer.Tables.Remove(t);
+            }
+
+        }
 
         private bool AddRelationColumns(string tableName, string columnName, Type T, string expression)
         {

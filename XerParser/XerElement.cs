@@ -148,7 +148,7 @@ namespace XerParser
 
         private async Task ParseWithLog()
         {
-            await Task.Run((Action)(() =>
+            await Task.Run(() =>
             {
                 Parsed = 0;
                 while (!records.IsCompleted)
@@ -156,11 +156,11 @@ namespace XerParser
                     if (records.TryTake(out string[] rec))
                     {
                         Parsed++;
-                        object[] values = new object[fields.Length];
+                        object[] values = new object[setters.Count];
                         int i = 0;
                         foreach (string f in fields)
                         {
-                            DataSetter setter = setters[f];
+                            if (setters.TryGetValue(f, out DataSetter setter))
                             {
                                 string value = rec.TryGet(setter.Index);
                                 try
@@ -178,7 +178,7 @@ namespace XerParser
                         row.AcceptChanges();
                     }
                 }
-            }));
+            });
             OnInitialised(new(stopwatch.Elapsed));
         }
 
@@ -211,7 +211,7 @@ namespace XerParser
             }
             catch (Exception ex)
             {
-                ErrorLog.Add($"{TableName} Error:{ex.Message}");
+                ErrorLog.Add($"{TableName} Error during parsing:{ex.Message} StackTrace: {ex.StackTrace}");
             }
         }
 

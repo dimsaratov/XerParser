@@ -44,6 +44,7 @@ namespace XerParserTest
         {
             sw = Stopwatch.StartNew();
             PrintStart(nameof(Parse), filePath);
+            parser.WithFullLog = true;
             parser.ResetIgnoredTable();
             await LoadXer(filePath);
 
