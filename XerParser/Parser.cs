@@ -309,7 +309,8 @@ namespace XerParser
             {
                 int rem;
                 ParseCounter.Maximum = (from x in XerElements
-                                        where !x.IsInicialized && !(x.TaskParsing.Status == TaskStatus.RanToCompletion)
+                                        where !x.IsInicialized && !x.IsErrors &&
+                                              !(x.TaskParsing.Status == TaskStatus.RanToCompletion)
                                         select x).Sum(i => i.Remains);
                 while (noIni > 0)
                 {
@@ -318,9 +319,8 @@ namespace XerParser
                            where !x.IsInicialized
                            select x).Sum(i => i.Remains);
                     ParseCounter.Value = ParseCounter.Maximum - rem;
-                    IEnumerable<XerElement> rem_xe = XerElements.Where(i => !i.IsInicialized
-                                                                  && !(i.TaskParsing.Status == TaskStatus.RanToCompletion
-                                                                    && i.TaskParsing.Status == TaskStatus.Faulted));
+                    IEnumerable<XerElement> rem_xe = XerElements.Where(i => !i.IsInicialized && !i.IsErrors
+                                                                         && !(i.TaskParsing.Status == TaskStatus.RanToCompletion));
                     noIni = rem_xe.Count();
                 }
             });
@@ -482,7 +482,8 @@ namespace XerParser
                         {
                             continue;
                         }
-                        e.records.Add([.. line.Skip(1)]);
+                        string[] record = [.. line.Skip(1)];
+                        e.records.Add(record);
                         break;
                     case end:
                         if (e is not null)

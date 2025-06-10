@@ -155,7 +155,6 @@ namespace XerParser
                 {
                     if (records.TryTake(out string[] rec))
                     {
-                        Parsed++;
                         object[] values = new object[setters.Count];
                         int i = 0;
                         foreach (string f in fields)
@@ -176,8 +175,10 @@ namespace XerParser
                         }
                         DataRow row = table.Rows.Add(values);
                         row.AcceptChanges();
+                        Parsed++;
                     }
                 }
+                table.EndLoadData();
             });
             OnInitialised(new(stopwatch.Elapsed));
         }
@@ -191,6 +192,7 @@ namespace XerParser
                 await Task.Run(() =>
                 {
                     int idx = 0;
+                    Parsed = 0;
                     while (!records.IsCompleted)
                     {
                         if (records.TryTake(out string[] rec))
@@ -198,14 +200,16 @@ namespace XerParser
                             try
                             {
                                 DataRow row = table.LoadDataRow([.. ParseRecord(rec)], true);
+                                Parsed++;
                             }
                             catch (Exception ex)
                             {
-                                ErrorLog.Add($"{TableName} index row[{idx}] Error:{ex.Message}");
+                                ErrorLog.Add($"{TableName} index row[{idx}] Error:{ex.Message} StackTrace:{ex.StackTrace}");
                             }
                             idx++;
                         }
                     }
+                    table.EndLoadData();
                 });
                 OnInitialised(new(stopwatch.Elapsed));
             }
@@ -271,7 +275,6 @@ namespace XerParser
         /// </summary>
         internal virtual void OnInitialised(InitializingEventArgs e)
         {
-            table.EndLoadData();
             IsInicialized = true;
             onInitialized?.Invoke(this, e);
         }
