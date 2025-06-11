@@ -329,8 +329,6 @@ namespace XerParser
                               where x.IsErrors
                               select string.Join('\n', x.ErrorLog));
 
-
-
             if (RemoveEmptyTables)
             {
                 RemoveEmpty();

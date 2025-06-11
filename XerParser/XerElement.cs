@@ -151,12 +151,13 @@ namespace XerParser
             await Task.Run(() =>
             {
                 Parsed = 0;
+                int num_row = 0;
                 while (!records.IsCompleted)
                 {
                     if (records.TryTake(out string[] rec))
                     {
-                        object[] values = new object[setters.Count];
-                        int i = 0;
+                        num_row++;
+                        DataRow row = table.NewRow();
                         foreach (string f in fields)
                         {
                             if (setters.TryGetValue(f, out DataSetter setter))
@@ -164,16 +165,15 @@ namespace XerParser
                                 string value = rec.TryGet(setter.Index);
                                 try
                                 {
-                                    values[i] = setter.Value(value);
-                                    i++;
+                                    row[f] = setter.Value(value);
                                 }
                                 catch (Exception ex)
                                 {
-                                    WriteErrorLog(ErrorLog, value, Parsed, ex.Message, TableName, f);
+                                    WriteErrorLog(ErrorLog, value, num_row, ex.Message, TableName, f);
                                 }
                             }
                         }
-                        DataRow row = table.Rows.Add(values);
+                        table.Rows.Add(row);
                         row.AcceptChanges();
                         Parsed++;
                     }
